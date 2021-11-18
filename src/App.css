@@ -47,17 +47,28 @@ textarea {
   width: 100%;
   resize: none;
   height: 10em;
+  padding: 0.5em;
 }
 
 button {
+  clear: both;
   margin: 1em 0;
   display: block;
   width: 100px;
   height: 2em;
+  color: white;
+  background: black;
+  border: none;
 }
 
 label {
-  float: left;
-  clear: left;
-  width: 5em;
+  padding-right: 1em;
+  display: inline-block;
+  width: 10em;
+}
+
+input {
+  border: 1px solid gray;
+  padding: 0.5em;
+  width: 100%;
 }

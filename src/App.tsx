@@ -12,8 +12,9 @@ import "./App.css";
 
 const generateMessage = async (form: HTMLFormElement) => {
   const method = getFormValue(form, "method");
-  const keys = await generateKeys();
-  const message = await encodeMessage({ method }, keys);
+  const data = getFormValue(form, "data");
+  const keys = generateKeys();
+  const message = await encodeMessage({ method, data }, keys);
   return message.toString("hex");
 };
 
@@ -42,15 +43,23 @@ function App() {
 
       <h2>Generate</h2>
       <form onSubmit={handleForm(generateMessage, setMessage)}>
-        <label>Method</label>
-        <input name="method" defaultValue="omni.getNetworkInfo" />
+        <label>
+          Method
+          <input name="method" defaultValue="ledger.info" />
+        </label>
+        <label>
+          Data
+          <input name="data" />
+        </label>
         <button>Generate</button>
       </form>
 
       <h2>Send</h2>
       <form onSubmit={handleForm(sendRequest, setReply)}>
-        <label>URL</label>
-        <input name="url" defaultValue="http://localhost:8000" />
+        <label>
+          URL
+          <input name="url" defaultValue="http://localhost:8000" />
+        </label>
         <textarea name="message" defaultValue={message} />
         <button>Send</button>
       </form>
