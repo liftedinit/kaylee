@@ -2,18 +2,24 @@ import React from "react";
 import {
   encodeMessage,
   decodeResponse,
+  createMnemonic,
   generateKeys,
   getFormValue,
   replacer,
   sendMessage,
+  KeyPair,
 } from "./utils";
 
 import "./App.css";
 
-const generateMessage = async (form: HTMLFormElement) => {
+const importKeys = async (form: HTMLFormElement) => {
+  const mnemonic = getFormValue(form, "mnemonic");
+  return generateKeys(mnemonic);
+};
+
+const generateMessage = (keys: KeyPair) => async (form: HTMLFormElement) => {
   const method = getFormValue(form, "method");
   const data = getFormValue(form, "data");
-  const keys = generateKeys();
   const message = await encodeMessage({ method, data }, keys);
   return message.toString("hex");
 };
@@ -35,14 +41,25 @@ const handleForm =
   };
 
 function App() {
+  const [keys, setKeys] = React.useState({
+    publicKey: new Uint8Array(),
+    secretKey: new Uint8Array(),
+  });
   const [message, setMessage] = React.useState("");
   const [reply, setReply] = React.useState({});
   return (
     <div className="App">
-      <h1>OmniMessage</h1>
+      <h1>OmniPanel</h1>
 
-      <h2>Generate</h2>
-      <form onSubmit={handleForm(generateMessage, setMessage)}>
+      <h2>Identity</h2>
+      <form onSubmit={handleForm(importKeys, setKeys)}>
+        <label>Mnemonic</label>
+        <textarea name="mnemonic" defaultValue={createMnemonic()} />
+        <button>Import</button>
+      </form>
+
+      <h2>Message</h2>
+      <form onSubmit={handleForm(generateMessage(keys), setMessage)}>
         <label>
           Method
           <input name="method" defaultValue="ledger.info" />
@@ -51,6 +68,9 @@ function App() {
           Data
           <input name="data" />
         </label>
+        <br />
+        <label>Keys</label>
+        <pre>{JSON.stringify(keys)}</pre>
         <button>Generate</button>
       </form>
 
@@ -60,12 +80,14 @@ function App() {
           URL
           <input name="url" defaultValue="http://localhost:8000" />
         </label>
+        <br />
+        <label>Message</label>
         <textarea name="message" defaultValue={message} />
         <button>Send</button>
       </form>
 
       <h2>Reply</h2>
-      <pre>{JSON.stringify(reply, replacer, 4)}</pre>
+      <pre>{JSON.stringify(reply, replacer)}</pre>
     </div>
   );
 }

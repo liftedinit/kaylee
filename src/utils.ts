@@ -1,8 +1,9 @@
 import nacl from "tweetnacl";
 import cbor from "cbor";
 import Tagged from "cbor/types/lib/tagged";
+const bip39 = require("bip39");
 
-interface KeyPair {
+export interface KeyPair {
   publicKey: Uint8Array;
   secretKey: Uint8Array;
 }
@@ -22,8 +23,14 @@ export function getFormValue(form: HTMLFormElement, name: string): string {
   return (form.elements.namedItem(name) as HTMLInputElement).value;
 }
 
-export function generateKeys(): KeyPair {
-  return nacl.sign.keyPair();
+export function createMnemonic(): string {
+  return bip39.generateMnemonic();
+}
+
+export function generateKeys(mnemonic: string): KeyPair {
+  const seed = bip39.mnemonicToSeedSync(mnemonic).slice(0, 32);
+  console.log(seed);
+  return nacl.sign.keyPair.fromSeed(seed);
 }
 
 export async function encodeMessage(message: OmniMessage, keys: KeyPair) {
@@ -96,7 +103,7 @@ export function replacer(key: string, value: any) {
   //   return cbor.decodeFirstSync(value);
   // }
   if (typeof value === "bigint") {
-    return value.toString() + "n";
+    return parseInt(value.toString());
   }
   if (value.tag === 10000) {
     return Buffer.from(value.value).toString("hex");
