@@ -1,11 +1,12 @@
-import nacl from "tweetnacl";
 import cbor from "cbor";
 import Tagged from "cbor/types/lib/tagged";
+import { asn1, pem, pki } from "node-forge";
 const bip39 = require("bip39");
+const ed25519 = pki.ed25519;
 
 export interface KeyPair {
   publicKey: Uint8Array;
-  secretKey: Uint8Array;
+  privateKey: Uint8Array;
 }
 
 interface OmniMessage {
@@ -29,8 +30,16 @@ export function createMnemonic(): string {
 
 export function generateKeys(mnemonic: string): KeyPair {
   const seed = bip39.mnemonicToSeedSync(mnemonic).slice(0, 32);
-  console.log(seed);
-  return nacl.sign.keyPair.fromSeed(seed);
+  const keys = ed25519.generateKeyPair({ seed });
+  return keys;
+}
+
+export function generateKeysFromPem(pastedPem: string): KeyPair {
+  const der = pem.decode(pastedPem)[0].body;
+  const asn = asn1.fromDer(der.toString());
+  const { privateKeyBytes } = ed25519.privateKeyFromAsn1(asn);
+  const keys = ed25519.generateKeyPair({ seed: privateKeyBytes });
+  return keys;
 }
 
 export async function encodeMessage(message: OmniMessage, keys: KeyPair) {
@@ -65,7 +74,10 @@ export function signPayload(messagePayload: Tagged, keys: KeyPair): Buffer {
   const payload = cbor.encode(messagePayload);
 
   const toBeSigned = cbor.encode(["Signature1", p, EMPTY_BUFFER, payload]);
-  const sig = nacl.sign.detached(toBeSigned, keys.secretKey);
+  const sig = ed25519.sign({
+    message: toBeSigned,
+    privateKey: keys.privateKey,
+  });
   return cbor.encodeCanonical(new cbor.Tagged(18, [p, u, payload, sig]));
 }
 

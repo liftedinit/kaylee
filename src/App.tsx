@@ -4,6 +4,7 @@ import {
   decodeResponse,
   createMnemonic,
   generateKeys,
+  generateKeysFromPem,
   getFormValue,
   replacer,
   sendMessage,
@@ -12,9 +13,14 @@ import {
 
 import "./App.css";
 
-const importKeys = async (form: HTMLFormElement) => {
+const importMnemonic = async (form: HTMLFormElement) => {
   const mnemonic = getFormValue(form, "mnemonic");
   return generateKeys(mnemonic);
+};
+
+const importPem = async (form: HTMLFormElement) => {
+  const pem = getFormValue(form, "pem");
+  return generateKeysFromPem(pem);
 };
 
 const generateMessage = (keys: KeyPair) => async (form: HTMLFormElement) => {
@@ -43,7 +49,7 @@ const handleForm =
 function App() {
   const [keys, setKeys] = React.useState({
     publicKey: new Uint8Array(),
-    secretKey: new Uint8Array(),
+    privateKey: new Uint8Array(),
   });
   const [message, setMessage] = React.useState("");
   const [reply, setReply] = React.useState({});
@@ -52,9 +58,14 @@ function App() {
       <h1>OmniPanel</h1>
 
       <h2>Identity</h2>
-      <form onSubmit={handleForm(importKeys, setKeys)}>
+      <form onSubmit={handleForm(importMnemonic, setKeys)}>
         <label>Mnemonic</label>
         <textarea name="mnemonic" defaultValue={createMnemonic()} />
+        <button>Import</button>
+      </form>
+      <form onSubmit={handleForm(importPem, setKeys)}>
+        <label>PEM</label>
+        <textarea name="pem" defaultValue={""} />
         <button>Import</button>
       </form>
 
