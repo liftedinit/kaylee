@@ -1,57 +1,49 @@
 import React from "react";
+import { messageToEnvelope, decodeResponse } from "./lib/message";
+import { sendHex } from "./lib/client";
 import {
-  encodeMessage,
-  decodeResponse,
-  createMnemonic,
-  generateKeys,
-  generateKeysFromPem,
-  getFormValue,
-  replacer,
-  sendMessage,
   KeyPair,
-} from "./utils";
+  createMnemonic,
+  pemToKeyPair,
+  mnemonicToKeyPair,
+} from "./lib/identity";
+import { getFormValue, handleForm, replacer } from "./utils";
 
 import "./App.css";
 
 const importMnemonic = async (form: HTMLFormElement) => {
   const mnemonic = getFormValue(form, "mnemonic");
-  return generateKeys(mnemonic);
+  return mnemonicToKeyPair(mnemonic);
 };
 
 const importPem = async (form: HTMLFormElement) => {
   const pem = getFormValue(form, "pem");
-  return generateKeysFromPem(pem);
+  return pemToKeyPair(pem);
 };
 
 const generateMessage = (keys: KeyPair) => async (form: HTMLFormElement) => {
   const method = getFormValue(form, "method");
   const data = getFormValue(form, "data");
-  const message = await encodeMessage({ method, data }, keys);
+  const message = await messageToEnvelope({ method, data }, keys);
+  // const message = await encodeMessage({ method, data }, keys);
   return message.toString("hex");
 };
 
 const sendRequest = async (form: HTMLFormElement) => {
-  const message = getFormValue(form, "message");
+  const hex = getFormValue(form, "hex");
   const url = getFormValue(form, "url");
-  const response = await sendMessage(url, Buffer.from(message, "hex"));
+  const response = await sendHex(url, hex);
   const reply = await decodeResponse(response);
   // @TODO: Verify response
   return reply;
 };
-
-const handleForm =
-  (handler: Function, callback: Function) =>
-  async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    callback(await handler(event.currentTarget));
-  };
 
 function App() {
   const [keys, setKeys] = React.useState({
     publicKey: new Uint8Array(),
     privateKey: new Uint8Array(),
   });
-  const [message, setMessage] = React.useState("");
+  const [hex, setHex] = React.useState("");
   const [reply, setReply] = React.useState({});
   return (
     <div className="App">
@@ -70,7 +62,7 @@ function App() {
       </form>
 
       <h2>Message</h2>
-      <form onSubmit={handleForm(generateMessage(keys), setMessage)}>
+      <form onSubmit={handleForm(generateMessage(keys), setHex)}>
         <label>
           Method
           <input name="method" defaultValue="ledger.info" />
@@ -93,7 +85,7 @@ function App() {
         </label>
         <br />
         <label>Message</label>
-        <textarea name="message" defaultValue={message} />
+        <textarea name="hex" defaultValue={hex} />
         <button>Send</button>
       </form>
 
