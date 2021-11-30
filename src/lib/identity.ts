@@ -26,3 +26,7 @@ export function pemToKeyPair(pem: string): KeyPair {
   const keys = ed25519.generateKeyPair({ seed: privateKeyBytes });
   return keys;
 }
+
+export function keyPairToKid(keys: KeyPair): string {
+  return "oaa";
+}
