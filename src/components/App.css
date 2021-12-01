@@ -1,0 +1,67 @@
+:root {
+  --primary-color: #dd9c80;
+  /* --secondary-color: #8ddfd4; */
+  --secondary-color: black;
+}
+
+.App {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h2 {
+  padding-top: 1em;
+  border-top: 1px solid gray;
+}
+
+textarea {
+  width: calc(100% - 1em - 2px);
+  resize: none;
+  height: 3.5em;
+  padding: 0.5em;
+  margin: 1em 0;
+  font-family: monospace;
+}
+
+button {
+  clear: both;
+  display: block;
+  min-width: 100px;
+  height: 2em;
+  color: white;
+  background: black;
+  border: none;
+}
+
+label {
+  clear: both;
+  padding-right: 1em;
+  display: block;
+  width: 100%;
+  line-height: 2em;
+}
+
+input {
+  float: right;
+  margin-left: 2em;
+  border: 1px solid gray;
+  padding: 0.5em;
+  width: calc(100% - 10em);
+  font-family: monospace;
+}
+
+pre {
+  font-size: 10px;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.Columns {
+  display: grid;
+  grid-template-columns: minmax(40%, 1fr) minmax(40%, 1fr);
+  column-gap: 1em;
+}
+
+.Column {
+}

@@ -18,9 +18,13 @@ export interface Message {
 const EMPTY_BUFFER = new ArrayBuffer(0);
 const ANONYMOUS = Buffer.from([0x00]);
 
-export async function messageToEnvelope(message: Message, keys: KeyPair) {
+export async function messageToEnvelope(
+  message: Message,
+  keys: KeyPair | null
+) {
+  const publicKey = keys ? keys.publicKey : ANONYMOUS;
   const sanitized = sanitizeMessage(message);
-  const payload = encodePayload(sanitized, keys.publicKey);
+  const payload = encodePayload(sanitized, publicKey);
   const envelope = encodeEnvelope(payload, keys);
   return envelope;
 }
@@ -49,11 +53,14 @@ function encodePayload(message: Message, publicKey: Key) {
   });
 }
 
-function encodeEnvelope(payload: Tagged, keys: KeyPair) {
-  const p = encodeProtectedHeader(keys.publicKey);
-  const u = encodeUnprotectedHeader(keys.publicKey);
+function encodeEnvelope(payload: Tagged, keys: KeyPair | null) {
+  const publicKey = keys ? keys.publicKey : ANONYMOUS;
+  const p = encodeProtectedHeader(publicKey);
+  const u = encodeUnprotectedHeader(publicKey);
   const encodedPayload = cbor.encode(payload);
-  const sig = signStructure(p, encodedPayload, keys.privateKey);
+  const sig = keys
+    ? signStructure(p, encodedPayload, keys.privateKey)
+    : EMPTY_BUFFER;
   return cbor.encodeCanonical(new cbor.Tagged(18, [p, u, encodedPayload, sig]));
 }
 
@@ -82,7 +89,10 @@ function encodeCoseKey(publicKey: Key) {
   return cbor.encodeCanonical([coseKey]);
 }
 
-function calculateKid(publicKey: Key) {
+export function calculateKid(publicKey: Key) {
+  if (publicKey === ANONYMOUS) {
+    return ANONYMOUS;
+  }
   const kid = new Map();
   kid.set(1, 1);
   kid.set(3, -8);
@@ -102,6 +112,35 @@ function signStructure(p: Buffer, payload: Buffer, privateKey: Key) {
   ]);
   const sig = ed25519.sign({ message, privateKey });
   return Buffer.from(sig);
+}
+
+export async function receiveResponse(response: Response) {
+  const buffer = await response.arrayBuffer();
+  return Buffer.from(buffer).toString("hex");
+}
+
+export function decodeHex(hex: string) {
+  const buffer = Buffer.from(hex, "hex");
+  const cose = cbor.decodeAllSync(buffer);
+  return JSON.stringify(cose, maybeDecodeCbor, 2);
+}
+
+function maybeDecodeCbor(key: string, value: any) {
+  if (value.type === "Buffer") {
+    const buffer = Buffer.from(value.data);
+    try {
+      return cbor.decodeAllSync(buffer);
+    } catch (e) {
+      return buffer.toString("hex");
+    }
+  }
+  if (value instanceof Map) {
+    return Object.fromEntries(value.entries());
+  }
+  if (key === "hash") {
+    return Buffer.from(value).toString("hex");
+  }
+  return value;
 }
 
 export async function decodeResponse(response: Response) {

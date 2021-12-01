@@ -1,5 +1,6 @@
 import forge from "node-forge";
 import * as bip39 from "bip39";
+import { calculateKid } from "./message";
 const ed25519 = forge.pki.ed25519;
 
 export interface KeyPair {
@@ -27,6 +28,13 @@ export function pemToKeyPair(pem: string): KeyPair {
   return keys;
 }
 
-export function keyPairToKid(keys: KeyPair): string {
-  return "oaa";
+export function keyPairToKid(keys: KeyPair | null): string {
+  if (!keys) {
+    return "00";
+  }
+  try {
+    return calculateKid(keys.publicKey).toString("hex");
+  } catch (e) {
+    return (e as Error).message;
+  }
 }

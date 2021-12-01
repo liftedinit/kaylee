@@ -1,0 +1,32 @@
+.Tab {
+  display: none;
+}
+
+.Tab.active {
+  display: block;
+}
+
+.ButtonGroup {
+}
+
+.ButtonGroup button {
+  display: inline-block;
+  background: white;
+  color: black;
+  border: 1px solid var(--secondary-color);
+  border-right: none;
+  margin: 0;
+  cursor: pointer;
+}
+.ButtonGroup button:first-child {
+  border-radius: 1em 0 0 1em;
+}
+.ButtonGroup button:last-child {
+  border-radius: 0 1em 1em 0;
+  border-right: 1px solid var(--secondary-color);
+}
+
+.ButtonGroup button.active {
+  background: var(--secondary-color);
+  color: white;
+}
