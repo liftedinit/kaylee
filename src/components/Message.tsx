@@ -17,7 +17,7 @@ interface MessageProps {
 
 function Message({ keys, setReq }: MessageProps) {
   return (
-    <div className="Message">
+    <div className="Message Section">
       <h2>Message</h2>
       <form onSubmit={handleForm(generateMessage(keys), setReq)}>
         <label>

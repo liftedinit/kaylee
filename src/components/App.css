@@ -1,53 +1,73 @@
+@import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap");
+
 :root {
-  --primary-color: #dd9c80;
-  /* --secondary-color: #8ddfd4; */
-  --secondary-color: black;
+  --primary-color: #ab7781;
+  --primary-medium: #65434a;
+  --primary-dark: #452e33;
+  --secondary-color: #8ddfd4;
+  --white: #faf0ea;
+  --black: #452e33;
+
+  --radius: 16px;
+}
+
+body {
+  background: var(--primary-dark);
+  color: white;
+  min-height: 100vh;
 }
 
 .App {
-  width: 100%;
-  max-width: 800px;
+  font-family: "Rubik", sans-serif;
   margin: 0 auto;
+  max-width: 800px;
+  width: 100%;
 }
 
-h2 {
-  padding-top: 1em;
-  border-top: 1px solid gray;
-}
-
-textarea {
-  width: calc(100% - 1em - 2px);
-  resize: none;
-  height: 3.5em;
-  padding: 0.5em;
+.App .Logo {
   margin: 1em 0;
-  font-family: monospace;
 }
 
-button {
-  clear: both;
-  display: block;
-  min-width: 100px;
-  height: 2em;
-  color: white;
-  background: black;
+.Section textarea {
+  border-radius: 0 0 1em 0;
   border: none;
+  font-family: monospace;
+  height: 3.5em;
+  margin: 1em;
+  padding: 0.5em;
+  resize: none;
+  width: calc(100% - 3em);
+}
+
+.Section button {
+  background: var(--secondary-color);
+  border-radius: 0 0 1em 0;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-family: "Rubik", sans-serif;
+  height: 3em;
+  min-width: 100px;
 }
 
 label {
-  clear: both;
-  padding-right: 1em;
   display: block;
   width: 100%;
   line-height: 2em;
+  color: var(--primary-color);
+  /* color: white; */
+  margin-left: 0.8em;
 }
 
 input {
   float: right;
-  margin-left: 2em;
-  border: 1px solid gray;
+  margin-right: 2.2em;
+  border: none;
+  border-radius: 0 0 1em 0;
+  /* margin-left: 2em; */
+  /* border: 1px solid var(--secondary-color); */
   padding: 0.5em;
-  width: calc(100% - 10em);
+  width: calc(100% - 12em);
   font-family: monospace;
 }
 
@@ -55,6 +75,8 @@ pre {
   font-size: 10px;
   overflow-wrap: break-word;
   white-space: pre-wrap;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1em;
 }
 
 .Columns {
@@ -64,4 +86,93 @@ pre {
 }
 
 .Column {
+}
+
+.Section {
+  position: relative;
+  padding: 2em 0 2em;
+  color: white;
+  /* min-height: 2em; */
+  margin-bottom: 1em;
+  /* border: 2px solid white; */
+  background: var(--primary-medium);
+  /* background: #6b474f; */
+  border-radius: 0 0 1em 0;
+}
+
+.Section h2 {
+  color: white;
+  padding: 0.5em 1em;
+  position: absolute;
+  margin: 0;
+  top: 0;
+  left: 0;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  /* background: rgba(0, 0, 0, 0.125); */
+  border: 1px solid var(--primary-dark);
+  border-width: 0 2px 2px 0;
+  border-radius: 0 0 1em 0;
+  font-weight: 400;
+}
+.Section h2:before {
+  content: "\0279c";
+  margin-right: 0.5em;
+}
+
+.Section .ButtonGroup {
+  position: absolute;
+  top: -2px;
+  right: 0;
+}
+
+.Section form button {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  border-top: 2px solid var(--primary-dark);
+  /* border-width: 2px 0 0 0; */
+  border-radius: 0 0 16px 0;
+  color: var(--secondary-color);
+  background: rgba(0, 0, 0, 0.125);
+  width: 100%;
+}
+
+.Tab {
+  display: none;
+}
+
+.Tab.active {
+  display: block;
+}
+
+.ButtonGroup {
+}
+
+.ButtonGroup button {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.125);
+  color: var(--primary-color);
+  border: 2px solid var(--primary-dark);
+  border-right: none;
+  /* border-right: 2px solid var(--primary-medium); */
+  margin: 0;
+  line-height: 2.5em;
+  border-radius: 0;
+}
+
+.ButtonGroup button:first-child {
+  /* border-radius: 1em 0 0 1em; */
+  border-radius: 0 0 0 1em;
+}
+
+.ButtonGroup button:last-child {
+  /* border-radius: 0 1em 1em 0; */
+  /* border-right: 2px solid var(--primary-dark); */
+  border-right: none;
+}
+
+.ButtonGroup button.active {
+  background: var(--secondary-color);
+  color: var(--primary-dark);
 }

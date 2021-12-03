@@ -8,7 +8,7 @@ interface ResponseProps {
 function Response({ res }: ResponseProps) {
   const [activeTab, setActiveTab] = React.useState(0);
   return (
-    <div className="Response">
+    <div className="Response Section">
       <h2>Response</h2>
       <div className="ButtonGroup">
         <button

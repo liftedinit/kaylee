@@ -20,7 +20,7 @@ interface RequestProps {
 function Request({ req, setRes }: RequestProps) {
   const [activeTab, setActiveTab] = React.useState(0);
   return (
-    <div className="Request">
+    <div className="Request Section">
       <h2>Request</h2>
       <div className="ButtonGroup">
         <button

@@ -26,7 +26,7 @@ function Identity({ setKeys }: IdentityProps) {
   const [activeTab, setActiveTab] = React.useState(0);
   const [mnemonic, setMnemonic] = React.useState(createMnemonic());
   return (
-    <div className="identity-section">
+    <div className="Identity Section">
       <h2>Identity</h2>
       <div className="ButtonGroup">
         <button

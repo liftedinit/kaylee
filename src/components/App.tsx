@@ -6,6 +6,7 @@ import Request from "./Request";
 import Response from "./Response";
 
 import "./App.css";
+import logo from "../logo.png";
 
 function App() {
   const [keys, setKeys] = React.useState<KeyPair | null>(null);
@@ -13,7 +14,12 @@ function App() {
   const [res, setRes] = React.useState("");
   return (
     <div className="App">
-      <h1>OmniPanel</h1>
+      <img
+        className="Logo"
+        src={logo}
+        alt="Kaylee by L1 Labs"
+        style={{ height: 50, marginLeft: -10 }}
+      />
 
       <Identity setKeys={setKeys} />
       <Message keys={keys} setReq={setReq} />

@@ -126,7 +126,7 @@ export function decodeHex(hex: string) {
 }
 
 function maybeDecodeCbor(key: string, value: any) {
-  if (value.type === "Buffer") {
+  if (value?.type === "Buffer") {
     const buffer = Buffer.from(value.data);
     try {
       return cbor.decodeAllSync(buffer);
@@ -136,6 +136,9 @@ function maybeDecodeCbor(key: string, value: any) {
   }
   if (value instanceof Map) {
     return Object.fromEntries(value.entries());
+  }
+  if (typeof value === "bigint") {
+    return parseInt(value.toString());
   }
   if (key === "hash") {
     return Buffer.from(value).toString("hex");
