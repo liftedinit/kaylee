@@ -37,10 +37,19 @@ function sanitizeMessage(message: Message): Message {
   const optional = Object.entries(message)
     .filter(([_, value]) => value !== "")
     .map(([key, value]) =>
-      key === "data" ? [key, cbor.encode(JSON.parse(value))] : [key, value]
+      key === "data"
+        ? [key, cbor.encode(JSON.parse(value, parseReviver))]
+        : [key, value]
     )
     .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {});
   return { ...required, ...optional };
+}
+
+function parseReviver(key: string, value: any) {
+  if (typeof value === "string" && /^\d+n$/.test(value)) {
+    return BigInt(value.slice(0, -1));
+  }
+  return value;
 }
 
 function encodePayload(message: Message, publicKey: Key) {

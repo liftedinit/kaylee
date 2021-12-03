@@ -4,7 +4,7 @@
   --primary-color: #ab7781;
   --primary-medium: #65434a;
   --primary-dark: #452e33;
-  --secondary-color: #8ddfd4;
+  --highlight: #8ddfd4;
   --white: #faf0ea;
   --black: #452e33;
 
@@ -12,8 +12,8 @@
 }
 
 body {
-  background: var(--primary-dark);
-  color: white;
+  background: var(--white);
+  color: var(--black);
   min-height: 100vh;
 }
 
@@ -29,7 +29,7 @@ body {
 }
 
 .Section textarea {
-  border-radius: 0 0 1em 0;
+  background: var(--white);
   border: none;
   font-family: monospace;
   height: 3.5em;
@@ -40,42 +40,51 @@ body {
 }
 
 .Section button {
-  background: var(--secondary-color);
-  border-radius: 0 0 1em 0;
+  background: var(--highlight);
   border: none;
   color: var(--primary-color);
   cursor: pointer;
   font-family: "Rubik", sans-serif;
-  height: 3em;
+  height: 2em;
   min-width: 100px;
+}
+.Section button:hover {
+  background: white;
 }
 
 label {
+  font-size: 0.8em;
+  text-transform: uppercase;
   display: block;
   width: 100%;
-  line-height: 2em;
+  line-height: 3em;
   color: var(--primary-color);
-  /* color: white; */
   margin-left: 0.8em;
 }
 
 input {
   float: right;
-  margin-right: 2.2em;
   border: none;
-  border-radius: 0 0 1em 0;
-  /* margin-left: 2em; */
-  /* border: 1px solid var(--secondary-color); */
+  margin-right: 1.75em;
+  background: var(--white);
+  line-height: 2em;
   padding: 0.5em;
   width: calc(100% - 12em);
   font-family: monospace;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
 }
 
 pre {
   font-size: 10px;
   overflow-wrap: break-word;
   white-space: pre-wrap;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--black);
+  margin: 1em;
+  color: var(--white);
   padding: 1em;
 }
 
@@ -89,30 +98,23 @@ pre {
 }
 
 .Section {
+  border-left: 5px solid var(--highlight);
   position: relative;
-  padding: 2em 0 2em;
-  color: white;
-  /* min-height: 2em; */
-  margin-bottom: 1em;
-  /* border: 2px solid white; */
-  background: var(--primary-medium);
-  /* background: #6b474f; */
-  border-radius: 0 0 1em 0;
+  padding: 2em 0 1em;
+  color: var(--black);
+  margin-bottom: 2em;
 }
 
 .Section h2 {
-  color: white;
-  padding: 0.5em 1em;
+  color: var(--white);
+  background: var(--highlight);
+  padding: 0.5em 1em 0.5em 0.5em;
   position: absolute;
   margin: 0;
   top: 0;
   left: 0;
   font-size: 0.8em;
   text-transform: uppercase;
-  /* background: rgba(0, 0, 0, 0.125); */
-  border: 1px solid var(--primary-dark);
-  border-width: 0 2px 2px 0;
-  border-radius: 0 0 1em 0;
   font-weight: 400;
 }
 .Section h2:before {
@@ -130,11 +132,10 @@ pre {
   position: absolute;
   bottom: 0;
   left: 0;
-  border-top: 2px solid var(--primary-dark);
-  /* border-width: 2px 0 0 0; */
-  border-radius: 0 0 16px 0;
-  color: var(--secondary-color);
-  background: rgba(0, 0, 0, 0.125);
+  color: var(--highlight);
+  background: var(--white);
+  border: 1px solid var(--highlight);
+  border-left: none;
   width: 100%;
 }
 
@@ -151,28 +152,17 @@ pre {
 
 .ButtonGroup button {
   display: inline-block;
-  background: rgba(0, 0, 0, 0.125);
-  color: var(--primary-color);
-  border: 2px solid var(--primary-dark);
-  border-right: none;
-  /* border-right: 2px solid var(--primary-medium); */
-  margin: 0;
-  line-height: 2.5em;
-  border-radius: 0;
-}
-
-.ButtonGroup button:first-child {
-  /* border-radius: 1em 0 0 1em; */
-  border-radius: 0 0 0 1em;
+  background: var(--white);
+  color: var(--highlight);
+  border: 1px solid var(--highlight);
+  margin: 0 0 0 2px;
+  line-height: 1.6em;
 }
 
 .ButtonGroup button:last-child {
-  /* border-radius: 0 1em 1em 0; */
-  /* border-right: 2px solid var(--primary-dark); */
-  border-right: none;
 }
 
 .ButtonGroup button.active {
-  background: var(--secondary-color);
-  color: var(--primary-dark);
+  background: var(--highlight);
+  color: var(--white);
 }

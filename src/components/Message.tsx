@@ -30,7 +30,7 @@ function Message({ keys, setReq }: MessageProps) {
         </label>
         <label>
           Method
-          <input name="method" defaultValue="ledger.info" />
+          <input name="method" defaultValue="endpoints" />
         </label>
         <label>
           Data
