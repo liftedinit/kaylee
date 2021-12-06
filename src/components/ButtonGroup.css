@@ -1,0 +1,21 @@
+.ButtonGroup {
+}
+
+.ButtonGroup button,
+.ButtonGroup .Button {
+  display: inline-block;
+  background: var(--white);
+  color: var(--highlight);
+  border: 1px solid var(--highlight);
+  margin: 0 0 0 2px;
+  line-height: 1.6em;
+}
+
+.ButtonGroup button:last-child {
+}
+
+.ButtonGroup button.active,
+.ButtonGroup .Button.active {
+  background: var(--highlight);
+  color: var(--white);
+}

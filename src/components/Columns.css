@@ -1,0 +1,8 @@
+.Columns {
+  display: grid;
+  grid-template-columns: minmax(40%, 1fr) minmax(40%, 1fr);
+  column-gap: 1em;
+}
+
+.Column {
+}

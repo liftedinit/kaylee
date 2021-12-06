@@ -1,5 +1,10 @@
 import React from "react";
 import { decodeHex } from "../lib/message";
+import Section from "./Section";
+import ButtonGroup from "./ButtonGroup";
+import Button from "./Button";
+import Tabs from "./Tabs";
+import Tab from "./Tab";
 
 interface ResponseProps {
   res: string;
@@ -8,40 +13,26 @@ interface ResponseProps {
 function Response({ res }: ResponseProps) {
   const [activeTab, setActiveTab] = React.useState(0);
   return (
-    <div className="Response Section">
-      <h2>Response</h2>
-      <div className="ButtonGroup">
-        <button
-          className={activeTab === 0 ? "active" : ""}
-          onClick={() => {
-            setActiveTab(0);
-          }}
-        >
-          Encoded (CBOR)
-        </button>
-        <button
-          className={activeTab === 1 ? "active" : ""}
-          onClick={() => {
-            setActiveTab(1);
-          }}
-        >
-          Decoded (JSON)
-        </button>
-      </div>
-      <div className="TabContent">
-        <div className={activeTab === 0 ? "Tab active" : "Tab"}>
+    <Section title="Request">
+      <ButtonGroup tab={activeTab} setTab={setActiveTab}>
+        <Button label="Encoded (CBOR)" />
+        <Button label="Decoded (JSON)" />
+      </ButtonGroup>
+
+      <Tabs tab={activeTab}>
+        <Tab>
           <textarea
             style={{ height: "15em" }}
             name="hex"
             value={res}
             disabled
           />
-        </div>
-        <div className={activeTab === 1 ? "Tab active" : "Tab"}>
+        </Tab>
+        <Tab>
           <pre>{decodeHex(res)}</pre>
-        </div>
-      </div>
-    </div>
+        </Tab>
+      </Tabs>
+    </Section>
   );
 }
 export default Response;
