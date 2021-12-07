@@ -1,13 +1,16 @@
-import { KeyPair, keyPairToKid } from "../lib/identity";
-import { messageToEnvelope } from "../lib/message";
+import omni from "../omni";
+import KeyPair from "../omni/types/keypair";
 import { getFormValue, handleForm } from "../utils";
 
 const generateMessage =
   (keys: KeyPair | null) => async (form: HTMLFormElement) => {
     const method = getFormValue(form, "method");
     const data = getFormValue(form, "data");
-    const message = await messageToEnvelope({ method, data }, keys);
-    return message.toString("hex");
+    const envelope = await omni.message.messageToEnvelope(
+      { method, data },
+      keys
+    );
+    return envelope.toString("hex");
   };
 
 interface MessageProps {
@@ -22,7 +25,11 @@ function Message({ keys, setReq }: MessageProps) {
       <form onSubmit={handleForm(generateMessage(keys), setReq)}>
         <label>
           From
-          <input name="from" disabled value={keyPairToKid(keys)} />
+          <input
+            name="from"
+            disabled
+            value={omni.identity.keyPairToKid(keys)}
+          />
         </label>
         <label>
           To

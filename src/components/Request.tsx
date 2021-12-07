@@ -1,7 +1,7 @@
 import React from "react";
+import omni from "../omni";
 import { handleForm, getFormValue } from "../utils";
-import { sendHex } from "../lib/client";
-import { decodeHex, receiveResponse } from "../lib/message";
+
 import Section from "./Section";
 import ButtonGroup from "./ButtonGroup";
 import Button from "./Button";
@@ -11,8 +11,8 @@ import Tab from "./Tab";
 const sendRequest = async (form: HTMLFormElement) => {
   const hex = getFormValue(form, "hex");
   const url = getFormValue(form, "url");
-  const response = await sendHex(url, hex);
-  const reply = await receiveResponse(response);
+  const response = await omni.server.sendHex(url, hex);
+  const reply = await omni.message.receiveResponse(response);
   // @TODO: Verify response
   return reply;
 };
@@ -41,7 +41,9 @@ function Request({ req, setRes }: RequestProps) {
             />
           </Tab>
           <Tab>
-            <pre style={{ overflowWrap: "anywhere" }}>{decodeHex(req)}</pre>
+            <pre style={{ overflowWrap: "anywhere" }}>
+              {omni.message.decodeHex(req)}
+            </pre>
           </Tab>
         </Tabs>
         <label>

@@ -1,5 +1,6 @@
 import React from "react";
-import { decodeHex } from "../lib/message";
+import omni from "../omni";
+
 import Section from "./Section";
 import ButtonGroup from "./ButtonGroup";
 import Button from "./Button";
@@ -29,7 +30,7 @@ function Response({ res }: ResponseProps) {
           />
         </Tab>
         <Tab>
-          <pre>{decodeHex(res)}</pre>
+          <pre>{omni.message.decodeHex(res)}</pre>
         </Tab>
       </Tabs>
     </Section>

@@ -1,5 +1,5 @@
 import React from "react";
-import { KeyPair } from "../lib/identity";
+import KeyPair from "../omni/types/keypair";
 
 import Columns from "./Columns";
 import Identity from "./Identity";

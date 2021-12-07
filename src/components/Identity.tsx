@@ -1,11 +1,8 @@
 import React from "react";
+import omni from "../omni";
+import KeyPair from "../omni/types/keypair";
 import { getFormValue, handleForm } from "../utils";
-import {
-  KeyPair,
-  createMnemonic,
-  mnemonicToKeyPair,
-  pemToKeyPair,
-} from "../lib/identity";
+
 import Button from "./Button";
 import ButtonGroup from "./ButtonGroup";
 import Section from "./Section";
@@ -18,22 +15,27 @@ interface IdentityProps {
 
 const importMnemonic = async (form: HTMLFormElement) => {
   const mnemonic = getFormValue(form, "mnemonic");
-  return mnemonicToKeyPair(mnemonic);
+  return omni.identity.mnemonicToKeyPair(mnemonic);
 };
 
 const importPem = async (form: HTMLFormElement) => {
   const pem = getFormValue(form, "pem");
-  return pemToKeyPair(pem);
+  return omni.identity.pemToKeyPair(pem);
 };
 
 function Identity({ setKeys }: IdentityProps) {
   const [activeTab, setActiveTab] = React.useState(0);
-  const [mnemonic, setMnemonic] = React.useState(createMnemonic());
+  const [mnemonic, setMnemonic] = React.useState(
+    omni.identity.createMnemonic()
+  );
   return (
     <Section title="Identity">
       <ButtonGroup tab={activeTab} setTab={setActiveTab}>
         <Button label="Anonymous" onClick={() => setKeys(null)} />
-        <Button label="Random" onClick={() => setMnemonic(createMnemonic())} />
+        <Button
+          label="Random"
+          onClick={() => setMnemonic(omni.identity.createMnemonic())}
+        />
         <Button label="Seed Words" />
         <Button label="Import PEM" />
       </ButtonGroup>
