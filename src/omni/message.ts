@@ -1,177 +1,83 @@
 import cbor from "cbor";
-import Tagged from "cbor/types/lib/tagged";
-import { pki } from "node-forge";
-import { sha3_224 } from "js-sha3";
-import { Key, KeyPair } from "./identity";
-const ed25519 = pki.ed25519;
+import { v4 as uuidv4 } from "uuid";
 
-export interface Message {
-  version?: number;
-  from?: Key;
-  to?: Key;
-  method: string;
-  data?: string;
-  id?: number;
-  timestamp?: number;
-}
+import { calculateKid, encodeEnvelope } from "./cose";
+import * as identity from "./identity";
 
-const EMPTY_BUFFER = new ArrayBuffer(0);
+import { Cbor, Key, Identity as ID, Message, Payload } from "./types";
+
 const ANONYMOUS = Buffer.from([0x00]);
 
-export async function messageToEnvelope(
-  message: Message,
-  keys: KeyPair | null
-) {
+export function encode(message: Message, keys: ID = null): Cbor {
   const publicKey = keys ? keys.publicKey : ANONYMOUS;
-  const sanitized = sanitizeMessage(message);
-  const payload = encodePayload(sanitized, publicKey);
+  const payload = makePayload(message, publicKey);
   const envelope = encodeEnvelope(payload, keys);
   return envelope;
 }
 
-function sanitizeMessage(message: Message): Message {
-  if (!message.method) {
+export function decode(cbor: Cbor): Message {
+  throw new Error("Not implemented");
+}
+
+function makePayload(
+  { to, from, method, data, version, timestamp, id }: Message,
+  publicKey: Key
+): Payload {
+  if (!method) {
     throw new Error("Property 'method' is required.");
   }
-  const required = { method: message.method };
-  const optional = Object.entries(message)
-    .filter(([_, value]) => value !== "")
-    .map(([key, value]) =>
-      key === "data"
-        ? [key, cbor.encode(JSON.parse(value, parseReviver))]
-        : [key, value]
-    )
-    .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {});
-  return { ...required, ...optional };
+  const payload = {
+    to: to ? to : identity.toString(), // ANONYMOUS
+    from: from ? from : new cbor.Tagged(10000, calculateKid(publicKey)),
+    method,
+    data: cbor.encode(data ? JSON.parse(data, reviver) : new ArrayBuffer(0)),
+    version: version ? version : 1,
+    timestamp: new cbor.Tagged(
+      1,
+      timestamp ? timestamp : Math.floor(Date.now() / 1000)
+    ),
+    id: id ? id : uuidv4(),
+  };
+  return payload;
 }
 
-function parseReviver(key: string, value: any) {
-  if (typeof value === "string" && /^\d+n$/.test(value)) {
-    return BigInt(value.slice(0, -1));
+function reviver(key: string, value: any) {
+  switch (true) {
+    case typeof value === "string" && /^\d+n$/.test(value): // "1000n"
+      return BigInt(value.slice(0, -1));
+
+    default:
+      return value;
   }
-  return value;
 }
 
-function encodePayload(message: Message, publicKey: Key) {
-  return new cbor.Tagged(10001, {
-    ...message,
-    version: 1,
-    from: new cbor.Tagged(10000, calculateKid(publicKey)),
-    to: new cbor.Tagged(10000, ANONYMOUS),
-    timestamp: new cbor.Tagged(1, Math.floor(Date.now() / 1000)),
-  });
-}
-
-function encodeEnvelope(payload: Tagged, keys: KeyPair | null) {
-  const publicKey = keys ? keys.publicKey : ANONYMOUS;
-  const p = encodeProtectedHeader(publicKey);
-  const u = encodeUnprotectedHeader(publicKey);
-  const encodedPayload = cbor.encode(payload);
-  const sig = keys
-    ? signStructure(p, encodedPayload, keys.privateKey)
-    : EMPTY_BUFFER;
-  return cbor.encodeCanonical(new cbor.Tagged(18, [p, u, encodedPayload, sig]));
-}
-
-function encodeProtectedHeader(publicKey: Key) {
-  const protectedHeader = new Map();
-  protectedHeader.set(1, -8); // alg: "Ed25519"
-  protectedHeader.set(4, calculateKid(publicKey)); // kid: kid
-  protectedHeader.set("keyset", encodeCoseKey(publicKey));
-  const p = cbor.encodeCanonical(protectedHeader);
-  return p;
-}
-
-function encodeUnprotectedHeader(publicKey: Key) {
-  const unprotectedHeader = new Map();
-  return unprotectedHeader;
-}
-
-function encodeCoseKey(publicKey: Key) {
-  const coseKey = new Map();
-  coseKey.set(1, 1); // kty: OKP
-  coseKey.set(3, -8); // alg: EdDSA
-  coseKey.set(-1, 6); // crv: Ed25519
-  coseKey.set(4, [2]); // key_ops: [verify]
-  coseKey.set(2, calculateKid(publicKey)); // kid: kid
-  coseKey.set(-2, publicKey); // x: publicKey
-  return cbor.encodeCanonical([coseKey]);
-}
-
-export function calculateKid(publicKey: Key) {
-  if (publicKey === ANONYMOUS) {
-    return ANONYMOUS;
-  }
-  const kid = new Map();
-  kid.set(1, 1);
-  kid.set(3, -8);
-  kid.set(-1, 6);
-  kid.set(4, [2]);
-  kid.set(-2, publicKey);
-  const pk = "01" + sha3_224(cbor.encodeCanonical(kid));
-  return Buffer.from(pk, "hex");
-}
-
-function signStructure(p: Buffer, payload: Buffer, privateKey: Key) {
-  const message = cbor.encodeCanonical([
-    "Signature1",
-    p,
-    EMPTY_BUFFER,
-    payload,
-  ]);
-  const sig = ed25519.sign({ message, privateKey });
-  return Buffer.from(sig);
-}
-
-export async function receiveResponse(response: Response) {
-  const buffer = await response.arrayBuffer();
-  return Buffer.from(buffer).toString("hex");
-}
-
-export function decodeHex(hex: string) {
-  const buffer = Buffer.from(hex, "hex");
+export function toJSON(buffer: Cbor): string {
   const cose = cbor.decodeAllSync(buffer);
-  return JSON.stringify(cose, maybeDecodeCbor, 2);
+  return JSON.stringify(cose, replacer, 2);
 }
 
-function maybeDecodeCbor(key: string, value: any) {
-  if (value?.type === "Buffer") {
-    const buffer = Buffer.from(value.data);
-    try {
-      return cbor.decodeAllSync(buffer);
-    } catch (e) {
-      return buffer.toString("hex");
+function replacer(key: string, value: any) {
+  switch (true) {
+    case value?.type === "Buffer": {
+      // Cbor
+      const buffer = Buffer.from(value.data);
+      try {
+        return cbor.decodeAllSync(buffer);
+      } catch (e) {
+        return buffer.toString("hex");
+      }
     }
-  }
-  if (value instanceof Map) {
-    return Object.fromEntries(value.entries());
-  }
-  if (typeof value === "bigint") {
-    return parseInt(value.toString());
-  }
-  if (key === "hash") {
-    return Buffer.from(value).toString("hex");
-  }
-  return value;
-}
 
-export async function decodeResponse(response: Response) {
-  const buffer = await response.arrayBuffer();
-  const cose = getValue(buffer);
+    case value instanceof Map: // Map()
+      return Object.fromEntries(value.entries());
 
-  // eslint-disable-next-line
-  const [p, u, payload, sig] = cose;
-  const data = getValue(payload);
-  if (data.data) {
-    return cbor.decodeFirstSync(data.data);
-  }
-  return data;
-}
+    case typeof value === "bigint": // BigInt()
+      return parseInt(value.toString());
 
-function getValue(buffer: ArrayBuffer) {
-  const { err, value } = cbor.decodeFirstSync(buffer, { preferWeb: true });
-  if (err) {
-    throw new Error(err);
+    case key === "hash": // { hash: [0,1,2] }
+      return Buffer.from(value).toString("hex");
+
+    default:
+      return value;
   }
-  return value;
 }

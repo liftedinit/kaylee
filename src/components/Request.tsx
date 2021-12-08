@@ -11,10 +11,8 @@ import Tab from "./Tab";
 const sendRequest = async (form: HTMLFormElement) => {
   const hex = getFormValue(form, "hex");
   const url = getFormValue(form, "url");
-  const response = await omni.server.sendHex(url, hex);
-  const reply = await omni.message.receiveResponse(response);
-  // @TODO: Verify response
-  return reply;
+  const response = await omni.server.sendEncoded(url, Buffer.from(hex, "hex"));
+  return response.toString("hex");
 };
 
 interface RequestProps {
@@ -42,7 +40,7 @@ function Request({ req, setRes }: RequestProps) {
           </Tab>
           <Tab>
             <pre style={{ overflowWrap: "anywhere" }}>
-              {omni.message.decodeHex(req)}
+              {omni.message.toJSON(Buffer.from(req, "hex"))}
             </pre>
           </Tab>
         </Tabs>

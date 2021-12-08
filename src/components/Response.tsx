@@ -14,7 +14,7 @@ interface ResponseProps {
 function Response({ res }: ResponseProps) {
   const [activeTab, setActiveTab] = React.useState(0);
   return (
-    <Section title="Request">
+    <Section title="Response">
       <ButtonGroup tab={activeTab} setTab={setActiveTab}>
         <Button label="Encoded (CBOR)" />
         <Button label="Decoded (JSON)" />
@@ -30,7 +30,7 @@ function Response({ res }: ResponseProps) {
           />
         </Tab>
         <Tab>
-          <pre>{omni.message.decodeHex(res)}</pre>
+          <pre>{omni.message.toJSON(Buffer.from(res, "hex"))}</pre>
         </Tab>
       </Tabs>
     </Section>

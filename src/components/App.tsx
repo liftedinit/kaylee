@@ -1,5 +1,5 @@
 import React from "react";
-import KeyPair from "../omni/types/keypair";
+import { Identity as ID } from "../omni/types";
 
 import Columns from "./Columns";
 import Identity from "./Identity";
@@ -11,7 +11,7 @@ import Response from "./Response";
 import "./App.css";
 
 function App() {
-  const [keys, setKeys] = React.useState<KeyPair | null>(null);
+  const [keys, setKeys] = React.useState<ID>(null);
   const [req, setReq] = React.useState("");
   const [res, setRes] = React.useState("");
 
