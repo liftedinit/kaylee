@@ -1,5 +1,7 @@
 import forge from "node-forge";
 import * as bip39 from "bip39";
+import base32 from "base32-encode";
+import crc from "polycrc";
 
 import { calculateKid } from "./cose";
 import { Cbor, Identity as ID } from "./types";
@@ -29,19 +31,23 @@ export function toString(keys: ID = null): string {
   if (!keys) {
     return "oaa";
   }
-  throw new Error("Not implemented");
+  const coseKey = toCoseKey(keys);
+  const checksum = parseInt(crc.crc16(coseKey));
+  const buffer = Buffer.allocUnsafe(3);
+  buffer.writeUInt16BE(checksum, 0);
+
+  const leader = "o";
+  const basedCoseKey = base32(coseKey, "RFC4648").slice(0, -1);
+  const basedChecksum = base32(buffer, "RFC4648").slice(0, 2);
+  return (leader + basedCoseKey + basedChecksum).toLowerCase();
 }
 
 export function toHex(keys: ID = null): string {
   if (!keys) {
     return "00";
   }
-  try {
-    const coseKey = toCoseKey(keys);
-    return coseKey.toString("hex");
-  } catch (e) {
-    return (e as Error).message;
-  }
+  const coseKey = toCoseKey(keys);
+  return coseKey.toString("hex");
 }
 
 export function toCoseKey(keys: ID = null): Cbor {

@@ -34,7 +34,7 @@ function Message({ keys, setReq, serverUrl }: MessageProps) {
       <form onSubmit={handleForm(generateMessage(keys), setReq)}>
         <label>
           From
-          <input name="from" disabled value={omni.identity.toHex(keys)} />
+          <input name="from" disabled value={omni.identity.toString(keys)} />
         </label>
         <label>
           To

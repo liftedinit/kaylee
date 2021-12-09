@@ -76,16 +76,14 @@ export function getPayload(buffer: Buffer): object {
 }
 
 function decodeCbor(candidate: any): object {
-  switch (true) {
-    case isBuffer(candidate):
-      return decodeBuffer(candidate);
-    case isArray(candidate):
-      return decodeArray(candidate);
-    case isObject(candidate):
-      return decodeObject(candidate);
-    default:
-      return candidate;
+  if (isBuffer(candidate)) {
+    return decodeBuffer(candidate);
+  } else if (isArray(candidate)) {
+    return decodeArray(candidate);
+  } else if (isObject(candidate)) {
+    return decodeObject(candidate);
   }
+  return candidate;
 }
 
 function isBuffer(candidate: any): boolean {
