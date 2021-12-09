@@ -8,19 +8,22 @@ import Button from "./Button";
 import Tabs from "./Tabs";
 import Tab from "./Tab";
 
-const sendRequest = async (form: HTMLFormElement) => {
+const sendRequest = (serverUrl: string) => async (form: HTMLFormElement) => {
   const hex = getFormValue(form, "hex");
-  const url = getFormValue(form, "url");
-  const response = await omni.server.sendEncoded(url, Buffer.from(hex, "hex"));
+  const response = await omni.server.sendEncoded(
+    serverUrl,
+    Buffer.from(hex, "hex")
+  );
   return response.toString("hex");
 };
 
 interface RequestProps {
   req: string;
   setRes: (res: string) => void;
+  serverUrl: string;
 }
 
-function Request({ req, setRes }: RequestProps) {
+function Request({ req, setRes, serverUrl }: RequestProps) {
   const [activeTab, setActiveTab] = React.useState(0);
   return (
     <Section title="Request">
@@ -29,7 +32,7 @@ function Request({ req, setRes }: RequestProps) {
         <Button label="Decoded (JSON)" />
       </ButtonGroup>
 
-      <form onSubmit={handleForm(sendRequest, setRes)}>
+      <form onSubmit={handleForm(sendRequest(serverUrl), setRes)}>
         <Tabs tab={activeTab}>
           <Tab>
             <textarea
@@ -44,10 +47,6 @@ function Request({ req, setRes }: RequestProps) {
             </pre>
           </Tab>
         </Tabs>
-        <label>
-          URL
-          <input name="url" defaultValue="http://localhost:8000" />
-        </label>
         <br />
         <button>Send</button>
       </form>

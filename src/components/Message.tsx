@@ -1,3 +1,5 @@
+import React from "react";
+
 import omni from "../omni";
 import { Identity as ID } from "../omni/types";
 import { getFormValue, handleForm } from "../utils";
@@ -12,9 +14,20 @@ const generateMessage = (keys: ID) => async (form: HTMLFormElement) => {
 interface MessageProps {
   keys: ID;
   setReq: (res: string) => void;
+  serverUrl: string;
 }
 
-function Message({ keys, setReq }: MessageProps) {
+function Message({ keys, setReq, serverUrl }: MessageProps) {
+  const [methodOptions, setMethodOptions] = React.useState<string[]>([]);
+  React.useEffect(() => {
+    const fetchEndpoints = async () => {
+      const endpoints = await omni.server.send(serverUrl, {
+        method: "endpoints",
+      });
+      setMethodOptions(endpoints);
+    };
+    fetchEndpoints();
+  }, [serverUrl]);
   return (
     <div className="Message Section">
       <h2>Message</h2>
@@ -29,7 +42,17 @@ function Message({ keys, setReq }: MessageProps) {
         </label>
         <label>
           Method
-          <input name="method" defaultValue="endpoints" />
+          {methodOptions.length ? (
+            <select name="method" defaultValue="endpoints">
+              {methodOptions.map((option: string, index) => (
+                <option key={index} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          ) : (
+            ""
+          )}
         </label>
         <label>
           Data

@@ -45,7 +45,7 @@ function encodeCoseKey(publicKey: Key) {
   return cbor.encodeCanonical([coseKey]);
 }
 export function calculateKid(publicKey: Key) {
-  if (publicKey === ANONYMOUS) {
+  if (Buffer.compare(publicKey, ANONYMOUS) === 0) {
     return ANONYMOUS;
   }
   const kid = new Map();
@@ -67,4 +67,61 @@ function signStructure(p: Buffer, payload: Buffer, privateKey: Key) {
   ]);
   const sig = ed25519.sign({ message, privateKey });
   return Buffer.from(sig);
+}
+
+export function getPayload(buffer: Buffer): object {
+  const cose = cbor.decodeFirstSync(buffer).value;
+  const payload = cose[2];
+  return decodeCbor(payload);
+}
+
+function decodeCbor(candidate: any): object {
+  switch (true) {
+    case isBuffer(candidate):
+      return decodeBuffer(candidate);
+    case isArray(candidate):
+      return decodeArray(candidate);
+    case isObject(candidate):
+      return decodeObject(candidate);
+    default:
+      return candidate;
+  }
+}
+
+function isBuffer(candidate: any): boolean {
+  return candidate instanceof Buffer;
+}
+
+function decodeBuffer(buffer: Buffer) {
+  try {
+    return decodeCbor(cbor.decodeFirstSync(buffer)); // CBOR
+  } catch (e) {
+    return buffer; // Some other Buffer
+  }
+}
+
+function isArray(candidate: any): boolean {
+  return Array.isArray(candidate);
+}
+
+function decodeArray(array: any[]) {
+  return array.map((item: any) => decodeCbor(item));
+}
+
+function isObject(candidate: any): boolean {
+  return (
+    typeof candidate === "object" &&
+    !Array.isArray(candidate) &&
+    candidate !== null
+  );
+}
+
+function decodeObject(object: object) {
+  return Object.entries(object).reduce(
+    (obj, [key, val]) => ({
+      ...obj,
+      [key]: decodeCbor(val),
+    }),
+    {}
+  );
 }

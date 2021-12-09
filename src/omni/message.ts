@@ -1,10 +1,10 @@
 import cbor from "cbor";
 import { v4 as uuidv4 } from "uuid";
 
-import { calculateKid, encodeEnvelope } from "./cose";
+import { calculateKid, encodeEnvelope, getPayload } from "./cose";
 import * as identity from "./identity";
 
-import { Cbor, Key, Identity as ID, Message, Payload } from "./types";
+import { Cbor, Cose, Key, Identity as ID, Message, Payload } from "./types";
 
 const ANONYMOUS = Buffer.from([0x00]);
 
@@ -15,8 +15,9 @@ export function encode(message: Message, keys: ID = null): Cbor {
   return envelope;
 }
 
-export function decode(cbor: Cbor): Message {
-  throw new Error("Not implemented");
+export function decode(cbor: Cbor) {
+  const payload = getPayload(cbor);
+  return (payload as Cose).value.data;
 }
 
 function makePayload(

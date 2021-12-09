@@ -15,7 +15,7 @@ export async function send(
   url: string,
   message: Message,
   keys: ID = null
-): Promise<Message> {
+): Promise<any> {
   const cbor = encode(message, keys);
   const reply = await sendEncoded(url, cbor);
   // @TODO: Verify response

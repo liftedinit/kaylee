@@ -33,4 +33,10 @@ export interface Payload {
   version: number;
 }
 
+export interface Cose {
+  tag: number;
+  value: { data: any };
+  err: number[];
+}
+
 // SERVER
