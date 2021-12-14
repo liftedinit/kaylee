@@ -43,13 +43,16 @@ function Message({ keys, setReq, serverUrl }: MessageProps) {
         <label>
           Method
           {methodOptions.length ? (
-            <select name="method" defaultValue="endpoints">
-              {methodOptions.map((option: string, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+            <span>
+              <input list="method-options" name="method" />
+              <datalist id="method-options">
+                {methodOptions.map((option: string, index) => (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </datalist>
+            </span>
           ) : (
             ""
           )}
