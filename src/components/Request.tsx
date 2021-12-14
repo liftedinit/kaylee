@@ -1,5 +1,5 @@
 import React from "react";
-import omni from "../omni";
+import omni from "omni";
 import { handleForm, getFormValue } from "../utils";
 
 import Section from "./Section";

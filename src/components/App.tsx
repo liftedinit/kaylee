@@ -1,5 +1,5 @@
 import React from "react";
-import { Identity as ID } from "../omni/types";
+import { Identity as ID } from "omni/dist/identity";
 
 import Columns from "./Columns";
 import Identity from "./Identity";

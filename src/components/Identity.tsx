@@ -1,6 +1,6 @@
 import React from "react";
-import omni from "../omni";
-import { Identity as ID } from "../omni/types";
+import omni from "omni";
+import { Identity as ID } from "omni/dist/identity";
 import { getFormValue, handleForm } from "../utils";
 
 import Button from "./Button";

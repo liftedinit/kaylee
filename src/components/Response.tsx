@@ -1,5 +1,5 @@
 import React from "react";
-import omni from "../omni";
+import omni from "omni";
 
 import Section from "./Section";
 import ButtonGroup from "./ButtonGroup";

@@ -1,7 +1,7 @@
 import React from "react";
 
-import omni from "../omni";
-import { Identity as ID } from "../omni/types";
+import omni from "omni";
+import { Identity as ID } from "omni/dist/identity";
 import { getFormValue, handleForm } from "../utils";
 
 const generateMessage = (keys: ID) => async (form: HTMLFormElement) => {
