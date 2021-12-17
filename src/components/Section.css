@@ -24,9 +24,14 @@
 }
 
 .Section .ButtonGroup {
-  position: absolute;
-  top: -2px;
-  right: 0;
+}
+
+@media (min-width: 35em) {
+  .Section .ButtonGroup {
+    position: absolute;
+    top: -2px;
+    right: 0;
+  }
 }
 
 .Section form button {
@@ -40,7 +45,7 @@
   width: 100%;
 }
 .Section textarea {
-  background: var(--white);
+  background: white;
   border: none;
   font-family: monospace;
   height: 3.5em;
@@ -57,7 +62,11 @@
   cursor: pointer;
   font-family: "Rubik", sans-serif;
   height: 2em;
-  min-width: 100px;
+}
+@media (min-width: 35em) {
+  .Section button {
+    min-width: 100px;
+  }
 }
 .Section button:hover {
   background: white;

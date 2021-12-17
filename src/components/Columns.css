@@ -1,8 +1,14 @@
 .Columns {
-  display: grid;
+  display: block;
   grid-template-columns: minmax(40%, 1fr) minmax(40%, 1fr);
   column-gap: 1em;
 }
 
 .Column {
+}
+
+@media (min-width: 35em) {
+  .Columns {
+    display: grid;
+  }
 }
