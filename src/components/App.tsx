@@ -1,5 +1,5 @@
 import React from "react";
-import { Identity as ID } from "omni/dist/identity";
+import { KeyPair } from "omni/dist/keys";
 
 import Columns from "./Columns";
 import Identity from "./Identity";
@@ -13,7 +13,7 @@ import "./App.css";
 
 function App() {
   const [serverUrl, setServerUrl] = React.useState("http://localhost:8000");
-  const [keys, setKeys] = React.useState<ID>(null);
+  const [keys, setKeys] = React.useState<KeyPair | undefined>();
   const [req, setReq] = React.useState("");
   const [res, setRes] = React.useState("");
 

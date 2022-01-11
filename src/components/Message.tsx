@@ -1,18 +1,33 @@
 import React from "react";
 
 import omni from "omni";
-import { Identity as ID } from "omni/dist/identity";
+import { KeyPair } from "omni/dist/keys";
 import { getFormValue, handleForm } from "../utils";
 
-const generateMessage = (keys: ID) => async (form: HTMLFormElement) => {
-  const method = getFormValue(form, "method");
-  const data = getFormValue(form, "data");
-  const envelope = omni.message.encode({ method, data }, keys);
-  return envelope.toString("hex");
+const parseData = (data: string) => {
+  if (!data) {
+    return undefined;
+  }
+  if (data.slice(0, 2) === "[[") {
+    return new Map(JSON.parse(data));
+  }
+  return JSON.parse(data);
 };
 
+const generateMessage =
+  (keys: KeyPair | undefined) => async (form: HTMLFormElement) => {
+    const method = getFormValue(form, "method");
+    const data = getFormValue(form, "data");
+
+    const envelope = omni.message.encode(
+      { method, data: parseData(data) },
+      keys
+    );
+    return envelope.toString("hex");
+  };
+
 interface MessageProps {
-  keys: ID;
+  keys?: KeyPair;
   setReq: (res: string) => void;
   serverUrl: string;
 }
@@ -28,13 +43,20 @@ function Message({ keys, setReq, serverUrl }: MessageProps) {
     };
     fetchEndpoints();
   }, [serverUrl]);
+  const identity = keys
+    ? omni.identity.fromPublicKey(keys.publicKey)
+    : undefined;
   return (
     <div className="Message Section">
       <h2>Message</h2>
       <form onSubmit={handleForm(generateMessage(keys), setReq)}>
         <label>
           From
-          <input name="from" disabled value={omni.identity.toString(keys)} />
+          <input
+            name="from"
+            disabled
+            value={omni.identity.toString(identity)}
+          />
         </label>
         <label>
           To
