@@ -1,6 +1,7 @@
 import React from "react";
 
 import omni from "omni";
+import { OmniError } from "omni/dist/cose";
 import { KeyPair } from "omni/dist/keys";
 import { getFormValue, handleForm } from "../utils";
 
@@ -36,10 +37,21 @@ function Message({ keys, setReq, serverUrl }: MessageProps) {
   const [methodOptions, setMethodOptions] = React.useState<string[]>([]);
   React.useEffect(() => {
     const fetchEndpoints = async () => {
-      const endpoints = await omni.server.send(serverUrl, {
-        method: "endpoints",
-      });
-      setMethodOptions(endpoints);
+      let endpoints;
+      try {
+        endpoints = await omni.server.send(serverUrl, {
+          method: "endpoints",
+        });
+        setMethodOptions(endpoints);
+      } catch (e) {
+        if (e instanceof OmniError) {
+          console.log(e.message);
+        } else {
+          throw e;
+        }
+      } finally {
+        setMethodOptions(endpoints ? endpoints : []);
+      }
     };
     fetchEndpoints();
   }, [serverUrl]);
