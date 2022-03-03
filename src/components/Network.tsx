@@ -2,8 +2,8 @@ import { getFormValue, handleForm } from "../utils";
 
 import Section from "./Section";
 
-interface ServerProps {
-  setServerUrl: (url: string) => void;
+interface NetworkProps {
+  setUrl: (url: string) => void;
 }
 
 const getUrl = async (form: HTMLFormElement) => {
@@ -11,10 +11,10 @@ const getUrl = async (form: HTMLFormElement) => {
   return url;
 };
 
-function Server({ setServerUrl }: ServerProps) {
+function Network({ setUrl }: NetworkProps) {
   return (
-    <Section title="Server">
-      <form onSubmit={handleForm(getUrl, setServerUrl)}>
+    <Section title="Network">
+      <form onSubmit={handleForm(getUrl, setUrl)}>
         <label>
           URL
           <input name="url" defaultValue="http://localhost:8000" />
@@ -26,4 +26,4 @@ function Server({ setServerUrl }: ServerProps) {
   );
 }
 
-export default Server;
+export default Network;

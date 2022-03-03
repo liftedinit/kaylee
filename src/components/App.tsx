@@ -1,5 +1,5 @@
 import React from "react";
-import { KeyPair } from "omni/dist/keys";
+import { KeyPair } from "many";
 
 import Columns from "./Columns";
 import Identity from "./Identity";
@@ -7,12 +7,12 @@ import Logo from "./Logo";
 import Message from "./Message";
 import Request from "./Request";
 import Response from "./Response";
-import Server from "./Server";
+import Network from "./Network";
 
 import "./App.css";
 
 function App() {
-  const [serverUrl, setServerUrl] = React.useState("http://localhost:8000");
+  const [url, setUrl] = React.useState("http://localhost:8000");
   const [keys, setKeys] = React.useState<KeyPair | undefined>();
   const [req, setReq] = React.useState("");
   const [res, setRes] = React.useState("");
@@ -21,11 +21,11 @@ function App() {
     <div className="App">
       <Logo />
 
-      <Server setServerUrl={setServerUrl} />
+      <Network setUrl={setUrl} />
       <Identity setKeys={setKeys} />
-      <Message keys={keys} setReq={setReq} serverUrl={serverUrl} />
+      <Message keys={keys} setReq={setReq} url={url} />
       <Columns>
-        <Request req={req} setRes={setRes} serverUrl={serverUrl} />
+        <Request req={req} setRes={setRes} url={url} />
         <Response res={res} />
       </Columns>
     </div>
