@@ -1,8 +1,6 @@
 import React from "react";
+import { Identity, KeyPair, Message as Msg } from "many";
 
-import omni from "omni";
-import { OmniError } from "omni/dist/cose";
-import { KeyPair } from "omni/dist/keys";
 import { getFormValue, handleForm } from "../utils";
 
 const parseData = (data: string) => {
@@ -19,56 +17,49 @@ const generateMessage =
   (keys: KeyPair | undefined) => async (form: HTMLFormElement) => {
     const method = getFormValue(form, "method");
     const data = getFormValue(form, "data");
-
-    const envelope = omni.message.encode(
-      { method, data: parseData(data) },
-      keys
-    );
-    return envelope.toString("hex");
+    return Msg.fromObject({ method, data: parseData(data) })
+      .toCborData(keys)
+      .toString("hex");
   };
 
 interface MessageProps {
   keys?: KeyPair;
   setReq: (res: string) => void;
-  serverUrl: string;
+  url: string;
 }
 
-function Message({ keys, setReq, serverUrl }: MessageProps) {
+function Message({ keys, setReq, url }: MessageProps) {
   const [methodOptions, setMethodOptions] = React.useState<string[]>([]);
   React.useEffect(() => {
-    const fetchEndpoints = async () => {
-      let endpoints;
-      try {
-        endpoints = await omni.server.send(serverUrl, {
-          method: "endpoints",
-        });
-        setMethodOptions(endpoints);
-      } catch (e) {
-        if (e instanceof OmniError) {
-          console.log(e.message);
-        } else {
-          throw e;
-        }
-      } finally {
-        setMethodOptions(endpoints ? endpoints : []);
-      }
-    };
-    fetchEndpoints();
-  }, [serverUrl]);
+    //   const fetchEndpoints = async () => {
+    //     let endpoints;
+    //     try {
+    //       const network = new Network(url, keys);
+    //       endpoints = await network.call("endpoints");
+    //       setMethodOptions(endpoints);
+    //     } catch (e) {
+    //       if (e instanceof ManyError) {
+    //         console.log(e.message);
+    //       } else {
+    //         throw e;
+    //       }
+    //     } finally {
+    //       setMethodOptions(endpoints ? endpoints : []);
+    //     }
+    //   };
+    //   fetchEndpoints();
+    setMethodOptions([]);
+  }, [url]);
   const identity = keys
-    ? omni.identity.fromPublicKey(keys.publicKey)
-    : undefined;
+    ? Identity.fromPublicKey(keys.publicKey)
+    : new Identity();
   return (
     <div className="Message Section">
       <h2>Message</h2>
       <form onSubmit={handleForm(generateMessage(keys), setReq)}>
         <label>
           From
-          <input
-            name="from"
-            disabled
-            value={omni.identity.toString(identity)}
-          />
+          <input name="from" disabled value={identity.toString()} />
         </label>
         <label>
           To

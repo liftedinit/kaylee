@@ -1,5 +1,6 @@
 import React from "react";
-import omni from "omni";
+import { Message } from "many";
+import { CoseMessage } from "many/dist/message/cose";
 
 import Section from "./Section";
 import ButtonGroup from "./ButtonGroup";
@@ -13,11 +14,18 @@ interface ResponseProps {
 
 function Response({ res }: ResponseProps) {
   const [activeTab, setActiveTab] = React.useState(0);
+  const cose = res.length
+    ? CoseMessage.fromCborData(Buffer.from(res, "hex")).toString()
+    : "";
+  const message = res.length
+    ? Message.fromCborData(Buffer.from(res, "hex")).toString()
+    : "";
   return (
     <Section title="Response">
       <ButtonGroup tab={activeTab} setTab={setActiveTab}>
         <Button label="Encoded (CBOR)" />
         <Button label="Decoded (JSON)" />
+        <Button label="Message (JSON)" />
       </ButtonGroup>
 
       <Tabs tab={activeTab}>
@@ -30,7 +38,10 @@ function Response({ res }: ResponseProps) {
           />
         </Tab>
         <Tab>
-          <pre>{omni.message.toJSON(Buffer.from(res, "hex"))}</pre>
+          <pre>{cose}</pre>
+        </Tab>
+        <Tab>
+          <pre>{message}</pre>
         </Tab>
       </Tabs>
     </Section>
