@@ -1,19 +1,15 @@
 import React from "react";
-import { Message } from "many";
-import { CoseMessage } from "many/dist/message/cose";
+import { Message } from "@liftedinit/many-js";
+import { CoseMessage } from "@liftedinit/many-js/dist/message/cose";
+import { Tab, Tabs, TabList, TabPanel, TabPanels } from "@liftedinit/ui";
 
 import Section from "./Section";
-import ButtonGroup from "./ButtonGroup";
-import Button from "./Button";
-import Tabs from "./Tabs";
-import Tab from "./Tab";
 
 interface ResponseProps {
   res: string;
 }
 
 function Response({ res }: ResponseProps) {
-  const [activeTab, setActiveTab] = React.useState(0);
   const cose = res.length
     ? CoseMessage.fromCborData(Buffer.from(res, "hex")).toString()
     : "";
@@ -22,27 +18,25 @@ function Response({ res }: ResponseProps) {
     : "";
   return (
     <Section title="Response">
-      <ButtonGroup tab={activeTab} setTab={setActiveTab}>
-        <Button label="Encoded (CBOR)" />
-        <Button label="Decoded (JSON)" />
-        <Button label="Message (JSON)" />
-      </ButtonGroup>
+      <Tabs>
+        <TabList>
+          <Tab>Encoded (CBOR)</Tab>
+          <Tab>Decoded (JSON)</Tab>
+        </TabList>
 
-      <Tabs tab={activeTab}>
-        <Tab>
-          <textarea
-            style={{ height: "15em" }}
-            name="hex"
-            value={res}
-            disabled
-          />
-        </Tab>
-        <Tab>
-          <pre>{cose}</pre>
-        </Tab>
-        <Tab>
-          <pre>{message}</pre>
-        </Tab>
+        <TabPanels>
+          <TabPanel>
+            <textarea
+              style={{ height: "15em" }}
+              name="hex"
+              value={res}
+              disabled
+            />
+          </TabPanel>
+          <TabPanel>
+            <pre>{cose}</pre>
+          </TabPanel>
+        </TabPanels>
       </Tabs>
     </Section>
   );

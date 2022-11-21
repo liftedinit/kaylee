@@ -1,26 +1,51 @@
 import React from "react";
-import { Identity, KeyPair, Message as Msg } from "many";
+import {
+  Ed25519KeyPairIdentity as KeyPair,
+  Message as Msg,
+  Address,
+} from "@liftedinit/many-js";
+import {
+  Box,
+  FormControl,
+  FormLabel,
+  Heading,
+  Flex,
+  Input,
+  Button,
+} from "@liftedinit/ui";
 
-import { getFormValue, handleForm } from "../utils";
+function makeMessage(keys: KeyPair | undefined, form: MessageForm) {
+  return Msg.fromObject({
+    from: Address.fromString(form.from),
+    to: Address.fromString(form.to),
+    method: form.method,
+    data: form.data
+      ? form.data.slice(0, 2) === "[["
+        ? new Map(JSON.parse(form.data))
+        : JSON.parse(form.data)
+      : undefined,
+  })
+    .toCborData(keys)
+    .toString();
+}
 
-const parseData = (data: string) => {
-  if (!data) {
-    return undefined;
-  }
-  if (data.slice(0, 2) === "[[") {
-    return new Map(JSON.parse(data));
-  }
-  return JSON.parse(data);
+interface MessageForm {
+  to: string;
+  from: string;
+  method: string;
+  data: string;
+  timestamp: string;
+  version: string;
+}
+
+const initialForm = {
+  to: "",
+  from: "",
+  method: "",
+  data: "",
+  timestamp: "",
+  version: "",
 };
-
-const generateMessage =
-  (keys: KeyPair | undefined) => async (form: HTMLFormElement) => {
-    const method = getFormValue(form, "method");
-    const data = getFormValue(form, "data");
-    return Msg.fromObject({ method, data: parseData(data) })
-      .toCborData(keys)
-      .toString("hex");
-  };
 
 interface MessageProps {
   keys?: KeyPair;
@@ -29,75 +54,108 @@ interface MessageProps {
 }
 
 function Message({ keys, setReq, url }: MessageProps) {
-  const [methodOptions, setMethodOptions] = React.useState<string[]>([]);
-  React.useEffect(() => {
-    //   const fetchEndpoints = async () => {
-    //     let endpoints;
-    //     try {
-    //       const network = new Network(url, keys);
-    //       endpoints = await network.call("endpoints");
-    //       setMethodOptions(endpoints);
-    //     } catch (e) {
-    //       if (e instanceof ManyError) {
-    //         console.log(e.message);
-    //       } else {
-    //         throw e;
-    //       }
-    //     } finally {
-    //       setMethodOptions(endpoints ? endpoints : []);
-    //     }
-    //   };
-    //   fetchEndpoints();
-    setMethodOptions([]);
-  }, [url]);
-  const identity = keys
-    ? Identity.fromPublicKey(keys.publicKey)
-    : new Identity();
+  const address = new Address(
+    keys ? Buffer.from(keys.publicKey) : undefined
+  ).toString();
+  const [form, setForm] = React.useState<MessageForm>({
+    ...initialForm,
+    from: address,
+  });
+
   return (
-    <div className="Message Section">
-      <h2>Message</h2>
-      <form onSubmit={handleForm(generateMessage(keys), setReq)}>
-        <label>
-          From
-          <input name="from" disabled value={identity.toString()} />
-        </label>
-        <label>
-          To
-          <input name="to" placeholder="00" />
-        </label>
-        <label>
-          Method
-          <input list="method-options" name="method" />
-          {methodOptions && methodOptions.length ? (
-            <span>
-              <datalist id="method-options">
-                {methodOptions.map((option: string, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </datalist>
-            </span>
-          ) : (
-            ""
-          )}
-        </label>
-        <label>
-          Data
-          <input name="data" />
-        </label>
-        <label>
-          Timestamp
-          <input name="timestamp" placeholder="Automatic" />
-        </label>
-        <label>
-          Version
-          <input name="version" placeholder="1" />
-        </label>
-        <br />
-        <button>Generate</button>
-      </form>
-    </div>
+    <Box bg="white" p={6}>
+      <Heading>Message</Heading>
+      <FormControl>
+        <Flex>
+          <FormLabel w="200px" htmlFor="from">
+            From
+          </FormLabel>
+          <Input id="from" name="from" isReadOnly value={address} />
+        </Flex>
+      </FormControl>
+      <FormControl>
+        <Flex>
+          <FormLabel w="200px" htmlFor="to">
+            To
+          </FormLabel>
+          <Input
+            id="to"
+            name="to"
+            placeholder="00"
+            onChange={(e) =>
+              setForm({ ...form, [e.target.name]: e.target.value })
+            }
+          />
+        </Flex>
+      </FormControl>
+      <FormControl>
+        <Flex>
+          <FormLabel w="200px" htmlFor="method">
+            Method
+          </FormLabel>
+          <Input
+            id="method"
+            name="method"
+            onChange={(e) =>
+              setForm({ ...form, [e.target.name]: e.target.value })
+            }
+          />
+        </Flex>
+      </FormControl>
+      <FormControl>
+        <Flex>
+          <FormLabel w="200px" htmlFor="data">
+            Data
+          </FormLabel>
+          <Input
+            id="data"
+            name="data"
+            onChange={(e) =>
+              setForm({ ...form, [e.target.name]: e.target.value })
+            }
+          />
+        </Flex>
+      </FormControl>
+      <FormControl>
+        <Flex>
+          <FormLabel w="200px" htmlFor="timestamp">
+            Timestamp
+          </FormLabel>
+          <Input
+            id="timestamp"
+            name="timestamp"
+            placeholder="Automatic"
+            onChange={(e) =>
+              setForm({
+                ...form,
+                [e.target.name]: e.target.value,
+              })
+            }
+          />
+        </Flex>
+      </FormControl>
+      <FormControl>
+        <Flex>
+          <FormLabel w="200px" htmlFor="Version">
+            Version
+          </FormLabel>
+          <Input
+            id="version"
+            name="version"
+            placeholder="1"
+            onChange={(e) =>
+              setForm({
+                ...form,
+                [e.target.name]: e.target.value,
+              })
+            }
+          />
+        </Flex>
+      </FormControl>
+      <Button mt={6} onClick={() => setReq(makeMessage(keys, form))}>
+        Generate
+      </Button>
+    </Box>
   );
 }
 

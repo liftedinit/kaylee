@@ -1,63 +1,92 @@
 import React from "react";
-import { KeyPair } from "many";
-import { getFormValue, handleForm } from "../utils";
-
-import Button from "./Button";
-import ButtonGroup from "./ButtonGroup";
-import Section from "./Section";
-import Tabs from "./Tabs";
-import Tab from "./Tab";
+import { Ed25519KeyPairIdentity as KeyPair } from "@liftedinit/many-js";
+import {
+  Tabs,
+  Tab,
+  TabList,
+  TabPanels,
+  TabPanel,
+  Box,
+  Heading,
+  FormControl,
+  FormLabel,
+  Textarea,
+  Button,
+} from "@liftedinit/ui";
 
 interface IdentityProps {
   setKeys: (keys?: KeyPair) => void;
 }
 
-const importMnemonic = async (form: HTMLFormElement) => {
-  const mnemonic = getFormValue(form, "mnemonic");
-  return KeyPair.fromMnemonic(mnemonic);
-};
-
-const importPem = async (form: HTMLFormElement) => {
-  const pem = getFormValue(form, "pem");
-  return KeyPair.fromPem(pem);
-};
-
 function Identity({ setKeys }: IdentityProps) {
-  const [activeTab, setActiveTab] = React.useState(0);
   const [mnemonic, setMnemonic] = React.useState(KeyPair.getMnemonic());
+  const [textarea, setTextarea] = React.useState("");
   return (
-    <Section title="Identity">
-      <ButtonGroup tab={activeTab} setTab={setActiveTab}>
-        <Button label="Anonymous" onClick={() => setKeys()} />
-        <Button
-          label="Random"
-          onClick={() => setMnemonic(KeyPair.getMnemonic())}
-        />
-        <Button label="Seed Words" />
-        <Button label="Import PEM" />
-      </ButtonGroup>
-      <Tabs tab={activeTab}>
-        <Tab />
-        <Tab>
-          <form onSubmit={handleForm(importMnemonic, setKeys)}>
-            <textarea name="mnemonic" disabled value={mnemonic} />
-            <button>Import</button>
-          </form>
-        </Tab>
-        <Tab>
-          <form onSubmit={handleForm(importMnemonic, setKeys)}>
-            <textarea name="mnemonic" />
-            <button>Import</button>
-          </form>
-        </Tab>
-        <Tab>
-          <form onSubmit={handleForm(importPem, setKeys)}>
-            <textarea name="pem" />
-            <button>Import</button>
-          </form>
-        </Tab>
+    <Box bg="white" p={6}>
+      <Heading>Identity</Heading>
+      <Tabs>
+        <TabList>
+          <Tab onClick={() => setKeys()}>Anonymous</Tab>
+          <Tab onClick={() => setMnemonic(KeyPair.getMnemonic())}>Random</Tab>
+          <Tab>Seed Words</Tab>
+          <Tab>Import PEM</Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel />
+          <TabPanel>
+            <FormControl>
+              <FormLabel m={0} htmlFor="mnemonic">
+                Seed Words
+              </FormLabel>
+              <Textarea
+                id="mnemonic"
+                isReadOnly
+                value={mnemonic}
+                onChange={(e) => setTextarea(e.target.value)}
+              />
+            </FormControl>
+            <Button
+              mt={6}
+              onClick={() => setKeys(KeyPair.fromMnemonic(mnemonic))}
+            >
+              Import
+            </Button>
+          </TabPanel>
+          <TabPanel>
+            <FormControl>
+              <FormLabel m={0} htmlFor="mnemonic">
+                Seed Words
+              </FormLabel>
+              <Textarea
+                id="mnemonic"
+                onChange={(e) => setTextarea(e.target.value)}
+              />
+            </FormControl>
+            <Button
+              mt={6}
+              onClick={() => setKeys(KeyPair.fromMnemonic(textarea))}
+            >
+              Import
+            </Button>
+          </TabPanel>
+          <TabPanel>
+            <FormControl>
+              <FormLabel m={0} htmlFor="pem">
+                PEM File
+              </FormLabel>
+              <Textarea
+                id="pem"
+                onChange={(e) => setTextarea(e.target.value)}
+              />
+            </FormControl>
+            <Button mt={6} onClick={() => setKeys(KeyPair.fromPem(textarea))}>
+              Import
+            </Button>
+          </TabPanel>
+        </TabPanels>
       </Tabs>
-    </Section>
+    </Box>
   );
 }
 

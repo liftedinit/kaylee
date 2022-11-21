@@ -1,13 +1,16 @@
-import React from "react";
 import { handleForm, getFormValue } from "../utils";
-import { Message, Network } from "many";
-import { CoseMessage } from "many/dist/message/cose";
-
-import Section from "./Section";
-import ButtonGroup from "./ButtonGroup";
-import Button from "./Button";
-import Tabs from "./Tabs";
-import Tab from "./Tab";
+import { Message, Network } from "@liftedinit/many-js";
+import { CoseMessage } from "@liftedinit/many-js/dist/message/cose";
+import {
+  Tab,
+  Tabs,
+  TabList,
+  TabPanels,
+  TabPanel,
+  Box,
+  Heading,
+  Button,
+} from "@liftedinit/ui";
 
 const sendRequest = (url: string) => async (form: HTMLFormElement) => {
   const hex = getFormValue(form, "hex");
@@ -23,7 +26,6 @@ interface RequestProps {
 }
 
 function Request({ req, setRes, url }: RequestProps) {
-  const [activeTab, setActiveTab] = React.useState(0);
   const cose = req.length
     ? CoseMessage.fromCborData(Buffer.from(req, "hex")).toString()
     : "";
@@ -31,33 +33,32 @@ function Request({ req, setRes, url }: RequestProps) {
     ? Message.fromCborData(Buffer.from(req, "hex")).toString()
     : "";
   return (
-    <Section title="Request">
-      <ButtonGroup tab={activeTab} setTab={setActiveTab}>
-        <Button label="Encoded (CBOR)" />
-        <Button label="Decoded (JSON)" />
-        <Button label="Message (JSON)" />
-      </ButtonGroup>
+    <Box bg="white" p={6}>
+      <Heading>Request</Heading>
+      <Tabs>
+        <TabList>
+          <Tab>Encoded (CBOR)</Tab>
+          <Tab>Decoded (JSON)</Tab>
+        </TabList>
 
-      <form onSubmit={handleForm(sendRequest(url), setRes)}>
-        <Tabs tab={activeTab}>
-          <Tab>
-            <textarea
-              style={{ height: "15em" }}
-              name="hex"
-              defaultValue={req}
-            />
-          </Tab>
-          <Tab>
-            <pre style={{ overflowWrap: "anywhere" }}>{cose}</pre>
-          </Tab>
-          <Tab>
-            <pre style={{ overflowWrap: "anywhere" }}>{message}</pre>
-          </Tab>
-        </Tabs>
-        <br />
-        <button>Send</button>
-      </form>
-    </Section>
+        <TabPanels>
+          <form onSubmit={handleForm(sendRequest(url), setRes)}>
+            <TabPanel>
+              <textarea
+                style={{ height: "15em" }}
+                name="hex"
+                defaultValue={req}
+              />
+            </TabPanel>
+            <TabPanel>
+              <pre style={{ overflowWrap: "anywhere" }}>{cose}</pre>
+            </TabPanel>
+            <br />
+            <Button mt={6}>Send</Button>
+          </form>
+        </TabPanels>
+      </Tabs>
+    </Box>
   );
 }
 export default Request;

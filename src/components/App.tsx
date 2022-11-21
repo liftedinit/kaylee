@@ -1,7 +1,6 @@
 import React from "react";
-import { KeyPair } from "many";
+import { Ed25519KeyPairIdentity as KeyPair } from "@liftedinit/many-js";
 
-import Columns from "./Columns";
 import Identity from "./Identity";
 import Logo from "./Logo";
 import Message from "./Message";
@@ -10,6 +9,7 @@ import Response from "./Response";
 import Network from "./Network";
 
 import "./App.css";
+import { Stack } from "@liftedinit/ui";
 
 function App() {
   const [url, setUrl] = React.useState("http://localhost:8000");
@@ -20,16 +20,28 @@ function App() {
   return (
     <div className="App">
       <Logo />
-
-      <Network setUrl={setUrl} />
-      <Identity setKeys={setKeys} />
-      <Message keys={keys} setReq={setReq} url={url} />
-      <Columns>
+      <Stack gap={6}>
+        <Network setUrl={setUrl} />
+        <Identity setKeys={setKeys} />
+        <Message keys={keys} setReq={setReq} url={url} />
         <Request req={req} setRes={setRes} url={url} />
-        <Response res={res} />
-      </Columns>
+      </Stack>
     </div>
   );
+
+  // return (
+  //   <div className="App">
+  //     <Logo />
+  //
+  //     <Network setUrl={setUrl} />
+  //     <Identity setKeys={setKeys} />
+  //     <Message keys={keys} setReq={setReq} url={url} />
+  //     <Columns>
+  //       <Request req={req} setRes={setRes} url={url} />
+  //       <Response res={res} />
+  //     </Columns>
+  //   </div>
+  // );
 }
 
 export default App;
