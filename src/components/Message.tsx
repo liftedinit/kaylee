@@ -4,15 +4,8 @@ import {
   Ed25519KeyPairIdentity as Id,
   Message as Msg,
 } from "@liftedinit/many-js";
-import {
-  Box,
-  Button,
-  Flex,
-  FormControl,
-  FormLabel,
-  Heading,
-  Input,
-} from "@liftedinit/ui";
+import { Box, Button, Heading } from "@liftedinit/ui";
+import Field from "./Field";
 
 function makeMessage(form: MessageForm) {
   return Msg.fromObject({
@@ -60,96 +53,28 @@ function Message({ id, setMsg }: MessageProps) {
     setForm((f) => ({ ...f, from: address }));
   }, [id]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
   return (
     <Box bg="white" p={6}>
       <Heading>Message</Heading>
-      <FormControl>
-        <Flex>
-          <FormLabel w="200px" htmlFor="from">
-            From
-          </FormLabel>
-          <Input id="from" name="from" isReadOnly value={form.from} />
-        </Flex>
-      </FormControl>
-      <FormControl>
-        <Flex>
-          <FormLabel w="200px" htmlFor="to">
-            To
-          </FormLabel>
-          <Input
-            id="to"
-            name="to"
-            placeholder="00"
-            onChange={(e) =>
-              setForm({ ...form, [e.target.name]: e.target.value })
-            }
-          />
-        </Flex>
-      </FormControl>
-      <FormControl isRequired>
-        <Flex>
-          <FormLabel w="200px" htmlFor="method">
-            Method
-          </FormLabel>
-          <Input
-            id="method"
-            name="method"
-            onChange={(e) =>
-              setForm({ ...form, [e.target.name]: e.target.value })
-            }
-          />
-        </Flex>
-      </FormControl>
-      <FormControl>
-        <Flex>
-          <FormLabel w="200px" htmlFor="data">
-            Data
-          </FormLabel>
-          <Input
-            id="data"
-            name="data"
-            onChange={(e) =>
-              setForm({ ...form, [e.target.name]: e.target.value })
-            }
-          />
-        </Flex>
-      </FormControl>
-      <FormControl>
-        <Flex>
-          <FormLabel w="200px" htmlFor="timestamp">
-            Timestamp
-          </FormLabel>
-          <Input
-            id="timestamp"
-            name="timestamp"
-            placeholder="Automatic"
-            onChange={(e) =>
-              setForm({
-                ...form,
-                [e.target.name]: e.target.value,
-              })
-            }
-          />
-        </Flex>
-      </FormControl>
-      <FormControl>
-        <Flex>
-          <FormLabel w="200px" htmlFor="Version">
-            Version
-          </FormLabel>
-          <Input
-            id="version"
-            name="version"
-            placeholder="1"
-            onChange={(e) =>
-              setForm({
-                ...form,
-                [e.target.name]: e.target.value,
-              })
-            }
-          />
-        </Flex>
-      </FormControl>
+      <Field name="from" label="From" isReadOnly value={form.from} />
+      <Field name="to" label="To" placeholder="00" onChange={handleChange} />
+      <Field name="method" label="Method" isRequired onChange={handleChange} />
+      <Field name="data" label="Data" onChange={handleChange} />
+      <Field
+        name="timestamp"
+        label="Timestamp"
+        placeholder="Automatic"
+        onChange={handleChange}
+      />
+      <Field
+        name="version"
+        label="Version"
+        placeholder="1"
+        onChange={handleChange}
+      />
       <Button mt={6} onClick={async () => setMsg(makeMessage(form))}>
         Generate
       </Button>

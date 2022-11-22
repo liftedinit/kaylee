@@ -27,7 +27,7 @@ function Response({ res }: ResponseProps) {
 
         <TabPanels>
           <TabPanel>
-            <Textarea isReadOnly name="hex" value={res} />
+            <Textarea h={300} isReadOnly name="hex" value={res} />
           </TabPanel>
           <TabPanel>
             <pre style={{ whiteSpace: "pre-wrap" }}>
