@@ -1,37 +1,54 @@
-import { handleForm, getFormValue } from "../utils";
-import { Message, Network } from "@liftedinit/many-js";
-import { CoseMessage } from "@liftedinit/many-js/dist/message/cose";
+import React from "react";
 import {
-  Tab,
-  Tabs,
-  TabList,
-  TabPanels,
-  TabPanel,
+  Ed25519KeyPairIdentity as Id,
+  Message as Msg,
+  Network,
+} from "@liftedinit/many-js";
+import {
   Box,
-  Heading,
   Button,
+  Heading,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Textarea,
 } from "@liftedinit/ui";
 
-const sendRequest = (url: string) => async (form: HTMLFormElement) => {
-  const hex = getFormValue(form, "hex");
+const sendReq = async (url: string, hex: string) => {
   const network = new Network(url);
   const res = await network.sendEncoded(Buffer.from(hex, "hex"));
   return res.toString("hex");
 };
 
 interface RequestProps {
-  req: string;
-  setRes: (res: string) => void;
   url: string;
+  id: Id | undefined;
+  msg?: Msg;
+  setRes: (res: string) => void;
 }
 
-function Request({ req, setRes, url }: RequestProps) {
-  const cose = req.length
-    ? CoseMessage.fromCborData(Buffer.from(req, "hex")).toString()
-    : "";
-  const message = req.length
-    ? Message.fromCborData(Buffer.from(req, "hex")).toString()
-    : "";
+function Request({ url, id, msg, setRes }: RequestProps) {
+  const [hex, setHex] = React.useState("");
+  const [json, setJson] = React.useState("");
+
+  React.useEffect(() => {
+    async function convertMsg(msg: Msg) {
+      const cose = await msg?.toCoseMessage(id);
+      setHex(cose.toCborData().toString("hex"));
+    }
+    msg && convertMsg(msg);
+  }, [id, msg]);
+
+  React.useEffect(() => {
+    function hexToJson(hex: string) {
+      const cose = Msg.fromCborData(Buffer.from(hex, "hex"));
+      setJson(cose.toString());
+    }
+    hex && hexToJson(hex);
+  }, [hex]);
+
   return (
     <Box bg="white" p={6}>
       <Heading>Request</Heading>
@@ -42,20 +59,21 @@ function Request({ req, setRes, url }: RequestProps) {
         </TabList>
 
         <TabPanels>
-          <form onSubmit={handleForm(sendRequest(url), setRes)}>
-            <TabPanel>
-              <textarea
-                style={{ height: "15em" }}
-                name="hex"
-                defaultValue={req}
-              />
-            </TabPanel>
-            <TabPanel>
-              <pre style={{ overflowWrap: "anywhere" }}>{cose}</pre>
-            </TabPanel>
-            <br />
-            <Button mt={6}>Send</Button>
-          </form>
+          <TabPanel>
+            <Textarea
+              name="hex"
+              h={300}
+              defaultValue={hex}
+              onChange={(e) => setHex(e.target.value)}
+            />
+          </TabPanel>
+          <TabPanel>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{json}</pre>
+          </TabPanel>
+          <br />
+          <Button mt={6} onClick={async () => setRes(await sendReq(url, hex))}>
+            Send
+          </Button>
         </TabPanels>
       </Tabs>
     </Box>

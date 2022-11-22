@@ -1,32 +1,30 @@
 import React from "react";
 import {
-  Ed25519KeyPairIdentity as KeyPair,
-  Message as Msg,
   Address,
+  Ed25519KeyPairIdentity as Id,
+  Message as Msg,
 } from "@liftedinit/many-js";
 import {
   Box,
+  Button,
+  Flex,
   FormControl,
   FormLabel,
   Heading,
-  Flex,
   Input,
-  Button,
 } from "@liftedinit/ui";
 
-function makeMessage(keys: KeyPair | undefined, form: MessageForm) {
+function makeMessage(form: MessageForm) {
   return Msg.fromObject({
     from: Address.fromString(form.from),
-    to: Address.fromString(form.to),
+    to: form.to.length ? Address.fromString(form.to) : undefined,
     method: form.method,
-    data: form.data
+    data: form.data.length
       ? form.data.slice(0, 2) === "[["
         ? new Map(JSON.parse(form.data))
         : JSON.parse(form.data)
       : undefined,
-  })
-    .toCborData(keys)
-    .toString();
+  });
 }
 
 interface MessageForm {
@@ -48,19 +46,19 @@ const initialForm = {
 };
 
 interface MessageProps {
-  keys?: KeyPair;
-  setReq: (res: string) => void;
-  url: string;
+  id?: Id;
+  setMsg: (msg: Msg) => void;
 }
 
-function Message({ keys, setReq, url }: MessageProps) {
-  const address = new Address(
-    keys ? Buffer.from(keys.publicKey) : undefined
-  ).toString();
-  const [form, setForm] = React.useState<MessageForm>({
-    ...initialForm,
-    from: address,
-  });
+function Message({ id, setMsg }: MessageProps) {
+  const [form, setForm] = React.useState<MessageForm>(initialForm);
+
+  React.useEffect(() => {
+    const address = new Address(
+      id ? Buffer.from(id.publicKey) : undefined
+    ).toString();
+    setForm((f) => ({ ...f, from: address }));
+  }, [id]);
 
   return (
     <Box bg="white" p={6}>
@@ -70,7 +68,7 @@ function Message({ keys, setReq, url }: MessageProps) {
           <FormLabel w="200px" htmlFor="from">
             From
           </FormLabel>
-          <Input id="from" name="from" isReadOnly value={address} />
+          <Input id="from" name="from" isReadOnly value={form.from} />
         </Flex>
       </FormControl>
       <FormControl>
@@ -88,7 +86,7 @@ function Message({ keys, setReq, url }: MessageProps) {
           />
         </Flex>
       </FormControl>
-      <FormControl>
+      <FormControl isRequired>
         <Flex>
           <FormLabel w="200px" htmlFor="method">
             Method
@@ -152,7 +150,7 @@ function Message({ keys, setReq, url }: MessageProps) {
           />
         </Flex>
       </FormControl>
-      <Button mt={6} onClick={() => setReq(makeMessage(keys, form))}>
+      <Button mt={6} onClick={async () => setMsg(makeMessage(form))}>
         Generate
       </Button>
     </Box>

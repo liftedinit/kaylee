@@ -1,23 +1,24 @@
-import React from "react";
-import { Message } from "@liftedinit/many-js";
-import { CoseMessage } from "@liftedinit/many-js/dist/message/cose";
-import { Tab, Tabs, TabList, TabPanel, TabPanels } from "@liftedinit/ui";
-
-import Section from "./Section";
+import { Message as Msg } from "@liftedinit/many-js";
+import {
+  Tab,
+  Tabs,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Box,
+  Heading,
+  Textarea,
+} from "@liftedinit/ui";
 
 interface ResponseProps {
   res: string;
 }
 
 function Response({ res }: ResponseProps) {
-  const cose = res.length
-    ? CoseMessage.fromCborData(Buffer.from(res, "hex")).toString()
-    : "";
-  const message = res.length
-    ? Message.fromCborData(Buffer.from(res, "hex")).toString()
-    : "";
   return (
-    <Section title="Response">
+    <Box bg="white" p={6}>
+      <Heading>Response</Heading>
+
       <Tabs>
         <TabList>
           <Tab>Encoded (CBOR)</Tab>
@@ -26,19 +27,16 @@ function Response({ res }: ResponseProps) {
 
         <TabPanels>
           <TabPanel>
-            <textarea
-              style={{ height: "15em" }}
-              name="hex"
-              value={res}
-              disabled
-            />
+            <Textarea isReadOnly name="hex" value={res} />
           </TabPanel>
           <TabPanel>
-            <pre>{cose}</pre>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {res && Msg.fromCborData(Buffer.from(res, "hex")).toString()}
+            </pre>
           </TabPanel>
         </TabPanels>
       </Tabs>
-    </Section>
+    </Box>
   );
 }
 export default Response;

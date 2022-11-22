@@ -10,11 +10,12 @@ import {
 } from "@liftedinit/ui";
 
 interface NetworkProps {
+  url: string;
   setUrl: (url: string) => void;
 }
 
-function Network({ setUrl }: NetworkProps) {
-  const [input, setInput] = React.useState("");
+function Network({ url, setUrl }: NetworkProps) {
+  const [input, setInput] = React.useState(url);
   return (
     <Box bg="white" p={6}>
       <Heading>Network</Heading>
@@ -26,7 +27,7 @@ function Network({ setUrl }: NetworkProps) {
           <Input
             id="url"
             type="url"
-            defaultValue="http://localhost:8000"
+            defaultValue={url}
             onChange={(e) => setInput(e.target.value)}
           />
         </Flex>
