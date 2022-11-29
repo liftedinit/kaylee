@@ -1,63 +1,82 @@
 import React from "react";
-import { handleForm, getFormValue } from "../utils";
-import { Message, Network } from "many";
-import { CoseMessage } from "many/dist/message/cose";
+import {
+  Ed25519KeyPairIdentity as Id,
+  Message as Msg,
+  Network,
+} from "@liftedinit/many-js";
+import {
+  Box,
+  Button,
+  Heading,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Textarea,
+} from "@liftedinit/ui";
 
-import Section from "./Section";
-import ButtonGroup from "./ButtonGroup";
-import Button from "./Button";
-import Tabs from "./Tabs";
-import Tab from "./Tab";
-
-const sendRequest = (url: string) => async (form: HTMLFormElement) => {
-  const hex = getFormValue(form, "hex");
+const sendReq = async (url: string, hex: string) => {
   const network = new Network(url);
   const res = await network.sendEncoded(Buffer.from(hex, "hex"));
   return res.toString("hex");
 };
 
 interface RequestProps {
-  req: string;
-  setRes: (res: string) => void;
   url: string;
+  id: Id | undefined;
+  msg?: Msg;
+  setRes: (res: string) => void;
 }
 
-function Request({ req, setRes, url }: RequestProps) {
-  const [activeTab, setActiveTab] = React.useState(0);
-  const cose = req.length
-    ? CoseMessage.fromCborData(Buffer.from(req, "hex")).toString()
-    : "";
-  const message = req.length
-    ? Message.fromCborData(Buffer.from(req, "hex")).toString()
-    : "";
-  return (
-    <Section title="Request">
-      <ButtonGroup tab={activeTab} setTab={setActiveTab}>
-        <Button label="Encoded (CBOR)" />
-        <Button label="Decoded (JSON)" />
-        <Button label="Message (JSON)" />
-      </ButtonGroup>
+function Request({ url, id, msg, setRes }: RequestProps) {
+  const [hex, setHex] = React.useState("");
+  const [json, setJson] = React.useState("");
 
-      <form onSubmit={handleForm(sendRequest(url), setRes)}>
-        <Tabs tab={activeTab}>
-          <Tab>
-            <textarea
-              style={{ height: "15em" }}
+  React.useEffect(() => {
+    async function convertMsg(msg: Msg) {
+      const cose = await msg?.toCoseMessage(id);
+      setHex(cose.toCborData().toString("hex"));
+    }
+    msg && convertMsg(msg);
+  }, [id, msg]);
+
+  React.useEffect(() => {
+    function hexToJson(hex: string) {
+      const cose = Msg.fromCborData(Buffer.from(hex, "hex"));
+      setJson(cose.toString());
+    }
+    hex && hexToJson(hex);
+  }, [hex]);
+
+  return (
+    <Box bg="white" p={6}>
+      <Heading>Request</Heading>
+      <Tabs>
+        <TabList>
+          <Tab>Encoded (CBOR)</Tab>
+          <Tab>Decoded (JSON)</Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel>
+            <Textarea
               name="hex"
-              defaultValue={req}
+              h={300}
+              defaultValue={hex}
+              onChange={(e) => setHex(e.target.value)}
             />
-          </Tab>
-          <Tab>
-            <pre style={{ overflowWrap: "anywhere" }}>{cose}</pre>
-          </Tab>
-          <Tab>
-            <pre style={{ overflowWrap: "anywhere" }}>{message}</pre>
-          </Tab>
-        </Tabs>
-        <br />
-        <button>Send</button>
-      </form>
-    </Section>
+          </TabPanel>
+          <TabPanel>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{json}</pre>
+          </TabPanel>
+          <br />
+          <Button mt={6} onClick={async () => setRes(await sendReq(url, hex))}>
+            Send
+          </Button>
+        </TabPanels>
+      </Tabs>
+    </Box>
   );
 }
 export default Request;

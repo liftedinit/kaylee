@@ -1,28 +1,41 @@
-import { getFormValue, handleForm } from "../utils";
-
-import Section from "./Section";
+import React from "react";
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+} from "@liftedinit/ui";
 
 interface NetworkProps {
+  url: string;
   setUrl: (url: string) => void;
 }
 
-const getUrl = async (form: HTMLFormElement) => {
-  const url = getFormValue(form, "url");
-  return url;
-};
-
-function Network({ setUrl }: NetworkProps) {
+function Network({ url, setUrl }: NetworkProps) {
+  const [input, setInput] = React.useState(url);
   return (
-    <Section title="Network">
-      <form onSubmit={handleForm(getUrl, setUrl)}>
-        <label>
-          URL
-          <input name="url" defaultValue="http://localhost:8000" />
-        </label>
-        <br />
-        <button>Connect</button>
-      </form>
-    </Section>
+    <Box bg="white" p={6}>
+      <Heading>Network</Heading>
+      <FormControl>
+        <Flex>
+          <FormLabel w="200px" htmlFor="url">
+            URL
+          </FormLabel>
+          <Input
+            id="url"
+            type="url"
+            defaultValue={url}
+            onChange={(e) => setInput(e.target.value)}
+          />
+        </Flex>
+      </FormControl>
+      <Button mt={6} onClick={() => setUrl(input)}>
+        Connect
+      </Button>
+    </Box>
   );
 }
 

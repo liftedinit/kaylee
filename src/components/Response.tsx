@@ -1,50 +1,42 @@
-import React from "react";
-import { Message } from "many";
-import { CoseMessage } from "many/dist/message/cose";
-
-import Section from "./Section";
-import ButtonGroup from "./ButtonGroup";
-import Button from "./Button";
-import Tabs from "./Tabs";
-import Tab from "./Tab";
+import { Message as Msg } from "@liftedinit/many-js";
+import {
+  Tab,
+  Tabs,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Box,
+  Heading,
+  Textarea,
+} from "@liftedinit/ui";
 
 interface ResponseProps {
   res: string;
 }
 
 function Response({ res }: ResponseProps) {
-  const [activeTab, setActiveTab] = React.useState(0);
-  const cose = res.length
-    ? CoseMessage.fromCborData(Buffer.from(res, "hex")).toString()
-    : "";
-  const message = res.length
-    ? Message.fromCborData(Buffer.from(res, "hex")).toString()
-    : "";
   return (
-    <Section title="Response">
-      <ButtonGroup tab={activeTab} setTab={setActiveTab}>
-        <Button label="Encoded (CBOR)" />
-        <Button label="Decoded (JSON)" />
-        <Button label="Message (JSON)" />
-      </ButtonGroup>
+    <Box bg="white" p={6}>
+      <Heading>Response</Heading>
 
-      <Tabs tab={activeTab}>
-        <Tab>
-          <textarea
-            style={{ height: "15em" }}
-            name="hex"
-            value={res}
-            disabled
-          />
-        </Tab>
-        <Tab>
-          <pre>{cose}</pre>
-        </Tab>
-        <Tab>
-          <pre>{message}</pre>
-        </Tab>
+      <Tabs>
+        <TabList>
+          <Tab>Encoded (CBOR)</Tab>
+          <Tab>Decoded (JSON)</Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel>
+            <Textarea h={300} isReadOnly name="hex" value={res} />
+          </TabPanel>
+          <TabPanel>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {res && Msg.fromCborData(Buffer.from(res, "hex")).toString()}
+            </pre>
+          </TabPanel>
+        </TabPanels>
       </Tabs>
-    </Section>
+    </Box>
   );
 }
 export default Response;
