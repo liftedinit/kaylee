@@ -78,6 +78,7 @@ function Message({ id, setMsg }: MessageProps) {
       <Button mt={6} onClick={async () => setMsg(makeMessage(form))}>
         Generate
       </Button>
+      <pre>{id?.publicKey.toString()}</pre>
     </Box>
   );
 }
