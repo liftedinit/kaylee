@@ -3,7 +3,6 @@ import {
   Badge,
   Box,
   Button,
-  CheckIcon,
   Flex,
   FormControl,
   FormLabel,
@@ -60,7 +59,6 @@ function Network({ url, setUrl }: NetworkProps) {
       </Button>
       {status && (
         <Flex mt={6} gap={6}>
-          <CheckIcon color="green" />
           <Box>
             <Text>
               Connected to <b>{status.serverName}</b>
